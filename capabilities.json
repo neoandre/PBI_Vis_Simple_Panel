@@ -69,6 +69,35 @@
         }
       }
     },
+    "valueFormat": {
+      "displayName": "Value format",
+      "properties": {
+        "useModelFormat": {
+          "displayName": "Use data model format",
+          "type": {
+            "bool": true
+          }
+        },
+        "customFormat": {
+          "displayName": "Custom format string",
+          "type": {
+            "text": true
+          }
+        },
+        "decimals": {
+          "displayName": "Decimals",
+          "type": {
+            "numeric": true
+          }
+        },
+        "thousands": {
+          "displayName": "Thousands separator",
+          "type": {
+            "bool": true
+          }
+        }
+      }
+    },
     "nameText": {
       "displayName": "Measure name",
       "properties": {
@@ -97,7 +126,12 @@
         "placement": {
           "displayName": "Placement",
           "type": {
-            "text": true
+            "enumeration": [
+              "left",
+              "right",
+              "top",
+              "bottom"
+            ]
           }
         }
       }
@@ -114,7 +148,119 @@
         "placement": {
           "displayName": "Placement",
           "type": {
-            "text": true
+            "enumeration": [
+              "left",
+              "right",
+              "top",
+              "bottom"
+            ]
+          }
+        }
+      }
+    },
+    "rules": {
+      "displayName": "Coloring rules",
+      "properties": {
+        "mode": {
+          "displayName": "Mode",
+          "type": {
+            "enumeration": [
+              "none",
+              "numeric",
+              "text",
+              "hex"
+            ]
+          }
+        },
+        "posColor": {
+          "displayName": "Positive color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "zeroColor": {
+          "displayName": "Zero color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "negColor": {
+          "displayName": "Negative color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "goodColor": {
+          "displayName": "Good color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "warnColor": {
+          "displayName": "Warning color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "badColor": {
+          "displayName": "Bad color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "defaultColor": {
+          "displayName": "Default color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "background": {
+      "displayName": "Background",
+      "properties": {
+        "color": {
+          "displayName": "Background color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "transparency": {
+          "displayName": "Transparency (0-100)",
+          "type": {
+            "numeric": true
           }
         }
       }
