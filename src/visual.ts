@@ -87,14 +87,14 @@ export class Visual implements IVisual {
     const nameFont = this.txt(objects, "nameText", "fontFamily", "Segoe UI, Arial");
     const nameSize = this.num(objects, "nameText", "fontSize", 12);
     const nameColor = this.col(objects, "nameText", "color", "#6B7280");
-    const namePlacement = this.txt(objects, "nameText", "placement", "top");
+    const namePlacement = (this.txt(objects, 'nameText', 'placement', 'top') || 'top').toLowerCase();
 
     const valFont = this.txt(objects, "valueText", "fontFamily", "Segoe UI, Arial");
     const valSize = this.num(objects, "valueText", "fontSize", 28);
     const valColorDefault = this.col(objects, "valueText", "color", "#0F172A");
 
     const iconSize = this.num(objects, "icon", "size", 18);
-    const iconPlacement = this.txt(objects, "icon", "placement", "left");
+    const iconPlacement = (this.txt(objects, 'icon', 'placement', 'left') || 'left').toLowerCase();
     const builtIn = (this.txt(objects, "icon", "builtIn", "status-circles") || "status-circles").toLowerCase();
 
     const valWeight = this.txt(objects, 'valueText', 'fontWeight', 'normal');
@@ -187,11 +187,6 @@ export class Visual implements IVisual {
         this.iconEl.appendChild(svg);
       }
     }
-
-    
-    // Default placement settings
-    const namePlacement = (this.txt(objects, 'nameText', 'placement', 'top') || 'top').toLowerCase();
-    const iconPlacement = (this.txt(objects, 'icon', 'placement', 'left') || 'left').toLowerCase();
 
     // Placements
     this.place(this.iconEl, iconPlacement);
