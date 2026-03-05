@@ -52,8 +52,7 @@ export class Visual implements IVisual {
 
   public update(options: VisualUpdateOptions): void {
     const dv: DataView | undefined = options.dataViews && options.dataViews[0];
-    this.lastObjects =
-      (dv && dv.metadata && dv.metadata.objects) || ({} as powerbi.DataViewObjects);
+    this.lastObjects = (dv && dv.metadata && dv.metadata.objects) || ({} as powerbi.DataViewObjects);
     const table: DataViewTable | undefined = dv && dv.table;
 
     // Size
@@ -72,16 +71,12 @@ export class Visual implements IVisual {
 
     const bgColor = this.col(objects, "background", "color", "#FFFFFF");
     const bgAlpha = this.num(objects, "background", "transparency", 0);
-    this.container.style.backgroundColor = this.rgba(
-      bgColor,
-      1 - Math.max(0, Math.min(100, bgAlpha)) / 100
-    );
+    this.container.style.backgroundColor = this.rgba(bgColor, 1 - Math.max(0, Math.min(100, bgAlpha)) / 100);
 
     const borderColor = this.col(objects, "card", "borderColor", "#E5E7EB");
     const borderWidth = this.num(objects, "card", "borderWidth", 0);
     const cornerRadius = this.num(objects, "card", "cornerRadius", 6);
-    this.container.style.border =
-      borderWidth > 0 ? `${borderWidth}px solid ${borderColor}` : "none";
+    this.container.style.border = borderWidth > 0 ? `${borderWidth}px solid ${borderColor}` : "none";
     (this.container.style as any).borderRadius = `${cornerRadius}px`;
 
     // Fonts & placements
@@ -96,8 +91,7 @@ export class Visual implements IVisual {
 
     const iconSize = this.num(objects, "icon", "size", 18);
     const iconPlacement = this.txt(objects, "icon", "placement", "left");
-    const builtIn =
-      (this.txt(objects, "icon", "builtIn", "status-circles") || "status-circles").toLowerCase();
+    const builtIn = (this.txt(objects, "icon", "builtIn", "status-circles") || "status-circles").toLowerCase();
 
     // Data roles → first row
     let value: any = "";
@@ -305,14 +299,14 @@ export class Visual implements IVisual {
                 { value: "Georgia", displayName: "Georgia" },
                 { value: "Times New Roman", displayName: "Times New Roman" },
                 { value: "Roboto, Arial, sans-serif", displayName: "Roboto" },
-                { value: "Inter, Arial, sans-serif", displayName: "Inter" },
+                { value: "Inter, Arial, sans-serif", displayName: "Inter" }
               ]
             ),
             numUpDown("valueText", "fontSize", "Font size", this.num(obj, "valueText", "fontSize", 28)),
-            colorPicker("valueText", "color", "Color", this.col(obj, "valueText", "color", "#0F172A")),
-          ],
-        },
-      ],
+            colorPicker("valueText", "color", "Color", this.col(obj, "valueText", "color", "#0F172A"))
+          ]
+        }
+      ]
     });
 
     // Name card
@@ -346,7 +340,7 @@ export class Visual implements IVisual {
                 { value: "Georgia", displayName: "Georgia" },
                 { value: "Times New Roman", displayName: "Times New Roman" },
                 { value: "Roboto, Arial, sans-serif", displayName: "Roboto" },
-                { value: "Inter, Arial, sans-serif", displayName: "Inter" },
+                { value: "Inter, Arial, sans-serif", displayName: "Inter" }
               ]
             ),
             numUpDown("nameText", "fontSize", "Font size", this.num(obj, "nameText", "fontSize", 12)),
@@ -355,11 +349,11 @@ export class Visual implements IVisual {
               { value: "left", displayName: "Left of value" },
               { value: "right", displayName: "Right of value" },
               { value: "top", displayName: "Above value" },
-              { value: "bottom", displayName: "Below value" },
-            ]),
-          ],
-        },
-      ],
+              { value: "bottom", displayName: "Below value" }
+            ])
+          ]
+        }
+      ]
     });
 
     // Icon card
@@ -376,21 +370,15 @@ export class Visual implements IVisual {
               { value: "left", displayName: "Left of value" },
               { value: "right", displayName: "Right of value" },
               { value: "top", displayName: "Above value" },
-              { value: "bottom", displayName: "Below value" },
+              { value: "bottom", displayName: "Below value" }
             ]),
-            dropdown(
-              "icon",
-              "builtIn",
-              "Built-in icons",
-              this.txt(obj, "icon", "builtIn", "status-circles"),
-              [
-                { value: "none", displayName: "None" },
-                { value: "status-circles", displayName: "Status circles" },
-              ]
-            ),
-          ],
-        },
-      ],
+            dropdown("icon", "builtIn", "Built-in icons", this.txt(obj, "icon", "builtIn", "status-circles"), [
+              { value: "none", displayName: "None" },
+              { value: "status-circles", displayName: "Status circles" }
+            ])
+          ]
+        }
+      ]
     });
 
     // Value format
@@ -402,32 +390,16 @@ export class Visual implements IVisual {
           uid: makeUid("valueFormat_group"),
           displayName: "Format",
           slices: [
-            toggle(
-              "valueFormat",
-              "useModelFormat",
-              "Use data model format",
-              this.bool(obj, "valueFormat", "useModelFormat", true)
-            ),
-            toggle(
-              "valueFormat",
-              "usePercent",
-              "Percent (×100 + %)",
-              this.bool(obj, "valueFormat", "usePercent", false)
-            ),
+            toggle("valueFormat", "useModelFormat", "Use data model format", this.bool(obj, "valueFormat", "useModelFormat", true)),
+            toggle("valueFormat", "usePercent", "Percent (×100 + %)", this.bool(obj, "valueFormat", "usePercent", false)),
             numUpDown("valueFormat", "decimals", "Decimals", this.num(obj, "valueFormat", "decimals", 2)),
             toggle("valueFormat", "thousands", "Thousands separator", this.bool(obj, "valueFormat", "thousands", true)),
             textInput("valueFormat", "prefix", "Prefix", this.txt(obj, "valueFormat", "prefix", ""), "Enter prefix…"),
             textInput("valueFormat", "suffix", "Suffix", this.txt(obj, "valueFormat", "suffix", ""), "Enter suffix…"),
-            textInput(
-              "valueFormat",
-              "customFormat",
-              "Custom format",
-              this.txt(obj, "valueFormat", "customFormat", ""),
-              "e.g.: #,0.0%"
-            ),
-          ],
-        },
-      ],
+            textInput("valueFormat", "customFormat", "Custom format", this.txt(obj, "valueFormat", "customFormat", ""), "e.g.: #,0.0%")
+          ]
+        }
+      ]
     });
 
     // Rules
@@ -443,7 +415,7 @@ export class Visual implements IVisual {
               { value: "none", displayName: "None" },
               { value: "numeric", displayName: "Numeric" },
               { value: "text", displayName: "Text" },
-              { value: "hex", displayName: "Hex" },
+              { value: "hex", displayName: "Hex" }
             ]),
             colorPicker("rules", "posColor", "Positive color", this.col(obj, "rules", "posColor", "#28FF18")),
             colorPicker("rules", "zeroColor", "Zero color", this.col(obj, "rules", "zeroColor", "#FFEA04")),
@@ -451,10 +423,10 @@ export class Visual implements IVisual {
             colorPicker("rules", "goodColor", "Good color", this.col(obj, "rules", "goodColor", "#28FF18")),
             colorPicker("rules", "warnColor", "Warn color", this.col(obj, "rules", "warnColor", "#FFEA04")),
             colorPicker("rules", "badColor", "Bad color", this.col(obj, "rules", "badColor", "#FF2C2C")),
-            colorPicker("rules", "defaultColor", "Default color", this.col(obj, "rules", "defaultColor", "#0F172A")),
-          ],
-        },
-      ],
+            colorPicker("rules", "defaultColor", "Default color", this.col(obj, "rules", "defaultColor", "#0F172A"))
+          ]
+        }
+      ]
     });
 
     // Background
@@ -467,15 +439,10 @@ export class Visual implements IVisual {
           displayName: "Background",
           slices: [
             colorPicker("background", "color", "Background color", this.col(obj, "background", "color", "#FFFFFF")),
-            numUpDown(
-              "background",
-              "transparency",
-              "Transparency (0-100)",
-              this.num(obj, "background", "transparency", 0)
-            ),
-          ],
-        },
-      ],
+            numUpDown("background", "transparency", "Transparency (0-100)", this.num(obj, "background", "transparency", 0))
+          ]
+        }
+      ]
     });
 
     // Card border
@@ -489,10 +456,10 @@ export class Visual implements IVisual {
           slices: [
             colorPicker("card", "borderColor", "Border color", this.col(obj, "card", "borderColor", "#E5E7EB")),
             numUpDown("card", "borderWidth", "Border width (px)", this.num(obj, "card", "borderWidth", 0)),
-            numUpDown("card", "cornerRadius", "Corner radius (px)", this.num(obj, "card", "cornerRadius", 6)),
-          ],
-        },
-      ],
+            numUpDown("card", "cornerRadius", "Corner radius (px)", this.num(obj, "card", "cornerRadius", 6))
+          ]
+        }
+      ]
     });
 
     // Layout
@@ -505,10 +472,10 @@ export class Visual implements IVisual {
           displayName: "Layout",
           slices: [
             numUpDown("layout", "gap", "Gap (px)", this.num(obj, "layout", "gap", 6)),
-            numUpDown("layout", "padding", "Padding (px)", this.num(obj, "layout", "padding", 8)),
-          ],
-        },
-      ],
+            numUpDown("layout", "padding", "Padding (px)", this.num(obj, "layout", "padding", 8))
+          ]
+        }
+      ]
     });
 
     // Action
@@ -523,12 +490,11 @@ export class Visual implements IVisual {
             dropdown("action", "mode", "Mode", this.txt(obj, "action", "mode", "none"), [
               { value: "none", displayName: "None" },
               { value: "url", displayName: "Open URL" }
-              // You can add more later (drillthrough/navigate/bookmark) if you back them with logic.
             ]),
-            textInput("action", "url", "URL", this.txt(obj, "action", "url", ""), "https://…"),
-          ],
-        },
-      ],
+            textInput("action", "url", "URL", this.txt(obj, "action", "url", ""), "https://…")
+          ]
+        }
+      ]
     });
 
     return { cards };
@@ -564,10 +530,19 @@ export class Visual implements IVisual {
     }
   }
 
-  private format(v: any, opt: {
-    useModel: boolean; customFmt: string; decimals: number; thousands: boolean;
-    usePercent: boolean; prefix: string; suffix: string; modelFmt?: string
-  }): string {
+  private format(
+    v: any,
+    opt: {
+      useModel: boolean;
+      customFmt: string;
+      decimals: number;
+      thousands: boolean;
+      usePercent: boolean;
+      prefix: string;
+      suffix: string;
+      modelFmt?: string;
+    }
+  ): string {
     if (v == null || v === "") return "";
     const n = typeof v === "number" ? v : Number(v);
 
@@ -645,7 +620,8 @@ export class Visual implements IVisual {
         g = parseInt(h.slice(2, 4), 16);
         b = parseInt(h.slice(4, 6), 16);
       }
-      return `rgba(${r},${g},${b},${Math.max(0, Math.min(1, alpha))})`;
+      return `rgba(${r},${g},${b},${Math.max(0, Math.min(1, alpha))})`
+
     } catch {
       return hex;
     }
