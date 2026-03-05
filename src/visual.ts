@@ -13,8 +13,8 @@ import DataViewTable = powerbi.DataViewTable;
 import DataViewMetadataColumn = powerbi.DataViewMetadataColumn;
 
 export class Visual implements IVisual {
-  private host: powerbi.extensibility.IVisualHost;
-  private selectionManager!: powerbi.extensibility.ISelectionManager;
+  private host: powerbi.extensibility.IVisualHost | any;
+  private selectionManager: powerbi.extensibility.ISelectionManager | any;
 
   private container: HTMLDivElement;
   private nameEl: HTMLDivElement;
@@ -27,13 +27,17 @@ export class Visual implements IVisual {
   private _actionMode: string = "none";
   private _actionUrl: string = "";
 
-  constructor(options: VisualConstructorOptions) {
-    this.host = options.host;
-    this.selectionManager = this.host.createSelectionManager();
+  // NOTE: make parameter optional to satisfy plugin wrapper types
+  constructor(options?: VisualConstructorOptions) {
+    this.host = (options && options.host) || ({} as any);
+    // Guard against older type defs lacking createSelectionManager
+    this.selectionManager = (this.host && this.host.createSelectionManager)
+      ? this.host.createSelectionManager()
+      : ({ select: ()=>Promise.resolve([]), clear: ()=>Promise.resolve([]), hasSelection: ()=>false } as any);
 
     this.container = document.createElement("div");
     this.container.className = "card-root";
-    options.element.appendChild(this.container);
+    (options && options.element ? options.element : document.body).appendChild(this.container);
 
     this.nameEl = document.createElement("div");
     this.nameEl.className = "name";
@@ -77,7 +81,7 @@ export class Visual implements IVisual {
     const borderWidth = this.num(objects, "card", "borderWidth", 0);
     const cornerRadius = this.num(objects, "card", "cornerRadius", 6);
     this.container.style.border = borderWidth > 0 ? `${borderWidth}px solid ${borderColor}` : "none";
-    (this.container.style as any).borderRadius = `${cornerRadius}px`;
+    ;(this.container.style as any).borderRadius = `${cornerRadius}px`;
 
     // Fonts & placements
     const nameFont = this.txt(objects, "nameText", "fontFamily", "Segoe UI, Arial");
@@ -620,8 +624,7 @@ export class Visual implements IVisual {
         g = parseInt(h.slice(2, 4), 16);
         b = parseInt(h.slice(4, 6), 16);
       }
-      return `rgba(${r},${g},${b},${Math.max(0, Math.min(1, alpha))})`
-
+      return `rgba(${r},${g},${b},${Math.max(0, Math.min(1, alpha))})`;
     } catch {
       return hex;
     }
@@ -643,14 +646,51 @@ export class Visual implements IVisual {
     return null;
   }
 
+  // ===== Object readers (the ones that were missing) =====
+  private num(objects: powerbi.DataViewObjects, obj: string, prop: string, def: number): number {
+    try {
+      const v: any = (objects as any)[obj]?.[prop];
+      const n = typeof v === 'number' ? v : Number(v);
+      return isFinite(n) ? n : def;
+    } catch { return def; }
+  }
+
+  private txt(objects: powerbi.DataViewObjects, obj: string, prop: string, def: string): string {
+    try {
+      const v: any = (objects as any)[obj]?.[prop];
+      return v != null ? String(v) : def;
+    } catch { return def; }
+  }
+
+  private col(objects: powerbi.DataViewObjects, obj: string, prop: string, def: string): string {
+    try {
+      const c: any = (objects as any)[obj]?.[prop];
+      if (typeof c === 'string') return c;
+      if (c?.solid?.color) return String(c.solid.color);
+      return def;
+    } catch { return def; }
+  }
+
+  private bool(objects: powerbi.DataViewObjects, obj: string, prop: string, def: boolean): boolean {
+    try {
+      const v: any = (objects as any)[obj]?.[prop];
+      if (typeof v === 'boolean') return v;
+      if (v === 'true') return true;
+      if (v === 'false') return false;
+      return def;
+    } catch { return def; }
+  }
+
   private onClick() {
     if (this._actionMode === "drillthrough") {
       try {
         const rect = this.container.getBoundingClientRect();
-        this.selectionManager.showContextMenu(
-          {},
-          { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
-        );
+        if (this.selectionManager?.showContextMenu) {
+          this.selectionManager.showContextMenu(
+            {},
+            { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+          );
+        }
       } catch {}
       return;
     }
