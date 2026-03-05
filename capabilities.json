@@ -69,9 +69,6 @@
             ]
           }
         },
-
-          }
-        },
         "fontSize": {
           "displayName": "Font size",
           "type": {
@@ -249,7 +246,6 @@
         "warnColor":    { "displayName": "Warn color",     "type": { "fill": { "solid": { "color": true }}}},
         "badColor":     { "displayName": "Bad color",      "type": { "fill": { "solid": { "color": true }}}},
         "defaultColor": { "displayName": "Default color",  "type": { "fill": { "solid": { "color": true }}}}
-        "defaultColor": { "displayName": "Default color",  "type": { "fill": { "solid": { "color": true}}}}
       }
     },
     "background": {
@@ -323,12 +319,6 @@
         "mode": {
           "displayName": "Mode",
           "type": {
-            "text": true
-          }
-        },
-        "url": {
-          "displayName": "URL",
-          "type": {
             "enumeration": [
               { "value": "none",       "displayName": "None" },
               { "value": "url",        "displayName": "Open URL" },
@@ -336,7 +326,12 @@
               { "value": "navigate",   "displayName": "Navigate to page (via URL)" },
               { "value": "bookmark",   "displayName": "Apply bookmark (via URL)" }
             ]
-
+          }
+        },
+        "url": {
+          "displayName": "URL",
+          "type": {
+            "text": true
           }
         }
       }
