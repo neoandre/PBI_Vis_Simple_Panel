@@ -73,7 +73,7 @@
           { "value": "normal", "displayName": "Normal" },
           { "value": "600",    "displayName": "Semibold" },
           { "value": "700",    "displayName": "Bold" }
-        ]}}
+        ]}},
         "fontSize": {
           "displayName": "Font size",
           "type": {
@@ -170,7 +170,7 @@
           { "value": "normal", "displayName": "Normal" },
           { "value": "600",    "displayName": "Semibold" },
           { "value": "700",    "displayName": "Bold" }
-        ]}}
+        ]}},
         "fontSize": {
           "displayName": "Font size",
           "type": {
