@@ -1,3 +1,4 @@
+
 /* eslint-disable */
 import powerbi from "powerbi-visuals-api";
 
@@ -195,3 +196,497 @@ export class Visual implements IVisual {
   }
 
   // ==== Modern Format Pane ====
+  public getFormattingModel(): powerbi.visuals.FormattingModel {
+    const cards: powerbi.visuals.FormattingCard[] = [];
+    const makeUid = (s: string) => `${s}_uid`;
+    const obj = this.lastObjects || ({} as powerbi.DataViewObjects);
+
+    // Helpers
+    const textInput = (
+      objectName: string,
+      propertyName: string,
+      displayName: string,
+      value: string,
+      placeholder: string
+    ): powerbi.visuals.FormattingSlice => ({
+      uid: makeUid(`${objectName}_${propertyName}`),
+      displayName,
+      control: {
+        type: powerbi.visuals.FormattingComponent.TextInput,
+        properties: { descriptor: { objectName, propertyName }, value, placeholder },
+      },
+    });
+
+    const numUpDown = (
+      objectName: string,
+      propertyName: string,
+      displayName: string,
+      value: number
+    ): powerbi.visuals.FormattingSlice => ({
+      uid: makeUid(`${objectName}_${propertyName}`),
+      displayName,
+      control: {
+        type: powerbi.visuals.FormattingComponent.NumUpDown,
+        properties: { descriptor: { objectName, propertyName }, value },
+      },
+    });
+
+    const colorPicker = (
+      objectName: string,
+      propertyName: string,
+      displayName: string,
+      value: string
+    ): powerbi.visuals.FormattingSlice => ({
+      uid: makeUid(`${objectName}_${propertyName}`),
+      displayName,
+      control: {
+        type: powerbi.visuals.FormattingComponent.ColorPicker,
+        properties: { descriptor: { objectName, propertyName }, value: { value } },
+      },
+    });
+
+    const toggle = (
+      objectName: string,
+      propertyName: string,
+      displayName: string,
+      value: boolean
+    ): powerbi.visuals.FormattingSlice => ({
+      uid: makeUid(`${objectName}_${propertyName}`),
+      displayName,
+      control: {
+        type: powerbi.visuals.FormattingComponent.ToggleSwitch,
+        properties: { descriptor: { objectName, propertyName }, value },
+      },
+    });
+
+    const dropdown = (
+      objectName: string,
+      propertyName: string,
+      displayName: string,
+      value: string,
+      items: { value: string; displayName: string }[]
+    ): powerbi.visuals.FormattingSlice => ({
+      uid: makeUid(`${objectName}_${propertyName}`),
+      displayName,
+      control: {
+        type: powerbi.visuals.FormattingComponent.Dropdown,
+        properties: { descriptor: { objectName, propertyName }, value, items },
+      },
+    });
+
+    // Value card
+    cards.push({
+      uid: makeUid("valueText_card"),
+      displayName: "Measure value",
+      groups: [
+        {
+          uid: makeUid("valueText_group"),
+          displayName: "Text",
+          slices: [
+            dropdown(
+              "valueText",
+              "fontFamily",
+              "Font family",
+              this.txt(obj, "valueText", "fontFamily", "Segoe UI, Arial"),
+              [
+                { value: "Segoe UI", displayName: "Segoe UI" },
+                { value: "Arial, Helvetica, sans-serif", displayName: "Arial" },
+                { value: "Sergoe (Bold)", displayName: "Segoe (Bold)" },
+                { value: "Segoe UI Semibold", displayName: "Segoe UI Semibold" },
+                { value: "Segoe UI Light", displayName: "Segoe UI Light" },
+                { value: "DIN", displayName: "DIN" },
+                { value: "DIN Light", displayName: "DIN Light" },
+                { value: "Arial Black", displayName: "Arial Black" },
+                { value: "Calibri", displayName: "Calibri" },
+                { value: "Consolas", displayName: "Consolas" },
+                { value: "Verdana, Geneva, sans-serif", displayName: "Verdana" },
+                { value: "Tahoma, Geneva, sans-serif", displayName: "Tahoma" },
+                { value: "Trebuchet MS", displayName: "Trebuchet MS" },
+                { value: "Georgia", displayName: "Georgia" },
+                { value: "Times New Roman", displayName: "Times New Roman" },
+                { value: "Roboto, Arial, sans-serif", displayName: "Roboto" },
+                { value: "Inter, Arial, sans-serif", displayName: "Inter" },
+              ]
+            ),
+            numUpDown("valueText", "fontSize", "Font size", this.num(obj, "valueText", "fontSize", 28)),
+            colorPicker("valueText", "color", "Color", this.col(obj, "valueText", "color", "#0F172A")),
+          ],
+        },
+      ],
+    });
+
+    // Name card
+    cards.push({
+      uid: makeUid("nameText_card"),
+      displayName: "Measure name",
+      groups: [
+        {
+          uid: makeUid("nameText_group"),
+          displayName: "Text",
+          slices: [
+            dropdown(
+              "nameText",
+              "fontFamily",
+              "Font family",
+              this.txt(obj, "nameText", "fontFamily", "Segoe UI, Arial"),
+              [
+                { value: "Segoe UI", displayName: "Segoe UI" },
+                { value: "Arial, Helvetica, sans-serif", displayName: "Arial" },
+                { value: "Sergoe (Bold)", displayName: "Segoe (Bold)" },
+                { value: "Segoe UI Semibold", displayName: "Segoe UI Semibold" },
+                { value: "Segoe UI Light", displayName: "Segoe UI Light" },
+                { value: "DIN", displayName: "DIN" },
+                { value: "DIN Light", displayName: "DIN Light" },
+                { value: "Arial Black", displayName: "Arial Black" },
+                { value: "Calibri", displayName: "Calibri" },
+                { value: "Consolas", displayName: "Consolas" },
+                { value: "Verdana, Geneva, sans-serif", displayName: "Verdana" },
+                { value: "Tahoma, Geneva, sans-serif", displayName: "Tahoma" },
+                { value: "Trebuchet MS", displayName: "Trebuchet MS" },
+                { value: "Georgia", displayName: "Georgia" },
+                { value: "Times New Roman", displayName: "Times New Roman" },
+                { value: "Roboto, Arial, sans-serif", displayName: "Roboto" },
+                { value: "Inter, Arial, sans-serif", displayName: "Inter" },
+              ]
+            ),
+            numUpDown("nameText", "fontSize", "Font size", this.num(obj, "nameText", "fontSize", 12)),
+            colorPicker("nameText", "color", "Color", this.col(obj, "nameText", "color", "#6B7280")),
+            dropdown("nameText", "placement", "Placement", this.txt(obj, "nameText", "placement", "top"), [
+              { value: "left", displayName: "Left of value" },
+              { value: "right", displayName: "Right of value" },
+              { value: "top", displayName: "Above value" },
+              { value: "bottom", displayName: "Below value" },
+            ]),
+          ],
+        },
+      ],
+    });
+
+    // Icon card
+    cards.push({
+      uid: makeUid("icon_card"),
+      displayName: "Icon",
+      groups: [
+        {
+          uid: makeUid("icon_group"),
+          displayName: "Appearance",
+          slices: [
+            numUpDown("icon", "size", "Size (px)", this.num(obj, "icon", "size", 18)),
+            dropdown("icon", "placement", "Placement", this.txt(obj, "icon", "placement", "left"), [
+              { value: "left", displayName: "Left of value" },
+              { value: "right", displayName: "Right of value" },
+              { value: "top", displayName: "Above value" },
+              { value: "bottom", displayName: "Below value" },
+            ]),
+            dropdown(
+              "icon",
+              "builtIn",
+              "Built-in icons",
+              this.txt(obj, "icon", "builtIn", "status-circles"),
+              [
+                { value: "none", displayName: "None" },
+                { value: "status-circles", displayName: "Status circles" },
+              ]
+            ),
+          ],
+        },
+      ],
+    });
+
+    // Value format
+    cards.push({
+      uid: makeUid("valueFormat_card"),
+      displayName: "Value format",
+      groups: [
+        {
+          uid: makeUid("valueFormat_group"),
+          displayName: "Format",
+          slices: [
+            toggle(
+              "valueFormat",
+              "useModelFormat",
+              "Use data model format",
+              this.bool(obj, "valueFormat", "useModelFormat", true)
+            ),
+            toggle(
+              "valueFormat",
+              "usePercent",
+              "Percent (×100 + %)",
+              this.bool(obj, "valueFormat", "usePercent", false)
+            ),
+            numUpDown("valueFormat", "decimals", "Decimals", this.num(obj, "valueFormat", "decimals", 2)),
+            toggle("valueFormat", "thousands", "Thousands separator", this.bool(obj, "valueFormat", "thousands", true)),
+            textInput("valueFormat", "prefix", "Prefix", this.txt(obj, "valueFormat", "prefix", ""), "Enter prefix…"),
+            textInput("valueFormat", "suffix", "Suffix", this.txt(obj, "valueFormat", "suffix", ""), "Enter suffix…"),
+            textInput(
+              "valueFormat",
+              "customFormat",
+              "Custom format",
+              this.txt(obj, "valueFormat", "customFormat", ""),
+              "e.g.: #,0.0%"
+            ),
+          ],
+        },
+      ],
+    });
+
+    // Rules
+    cards.push({
+      uid: makeUid("rules_card"),
+      displayName: "Coloring rules",
+      groups: [
+        {
+          uid: makeUid("rules_group"),
+          displayName: "Rules",
+          slices: [
+            dropdown("rules", "mode", "Mode", this.txt(obj, "rules", "mode", "none"), [
+              { value: "none", displayName: "None" },
+              { value: "numeric", displayName: "Numeric" },
+              { value: "text", displayName: "Text" },
+              { value: "hex", displayName: "Hex" },
+            ]),
+            colorPicker("rules", "posColor", "Positive color", this.col(obj, "rules", "posColor", "#28FF18")),
+            colorPicker("rules", "zeroColor", "Zero color", this.col(obj, "rules", "zeroColor", "#FFEA04")),
+            colorPicker("rules", "negColor", "Negative color", this.col(obj, "rules", "negColor", "#FF2C2C")),
+            colorPicker("rules", "goodColor", "Good color", this.col(obj, "rules", "goodColor", "#28FF18")),
+            colorPicker("rules", "warnColor", "Warn color", this.col(obj, "rules", "warnColor", "#FFEA04")),
+            colorPicker("rules", "badColor", "Bad color", this.col(obj, "rules", "badColor", "#FF2C2C")),
+            colorPicker("rules", "defaultColor", "Default color", this.col(obj, "rules", "defaultColor", "#0F172A")),
+          ],
+        },
+      ],
+    });
+
+    // Background
+    cards.push({
+      uid: makeUid("background_card"),
+      displayName: "Background",
+      groups: [
+        {
+          uid: makeUid("background_group"),
+          displayName: "Background",
+          slices: [
+            colorPicker("background", "color", "Background color", this.col(obj, "background", "color", "#FFFFFF")),
+            numUpDown(
+              "background",
+              "transparency",
+              "Transparency (0-100)",
+              this.num(obj, "background", "transparency", 0)
+            ),
+          ],
+        },
+      ],
+    });
+
+    // Card border
+    cards.push({
+      uid: makeUid("card_card"),
+      displayName: "Card border",
+      groups: [
+        {
+          uid: makeUid("card_group"),
+          displayName: "Border",
+          slices: [
+            colorPicker("card", "borderColor", "Border color", this.col(obj, "card", "borderColor", "#E5E7EB")),
+            numUpDown("card", "borderWidth", "Border width (px)", this.num(obj, "card", "borderWidth", 0)),
+            numUpDown("card", "cornerRadius", "Corner radius (px)", this.num(obj, "card", "cornerRadius", 6)),
+          ],
+        },
+      ],
+    });
+
+    // Layout
+    cards.push({
+      uid: makeUid("layout_card"),
+      displayName: "Layout",
+      groups: [
+        {
+          uid: makeUid("layout_group"),
+          displayName: "Layout",
+          slices: [
+            numUpDown("layout", "gap", "Gap (px)", this.num(obj, "layout", "gap", 6)),
+            numUpDown("layout", "padding", "Padding (px)", this.num(obj, "layout", "padding", 8)),
+          ],
+        },
+      ],
+    });
+
+    // Action
+    cards.push({
+      uid: makeUid("action_card"),
+      displayName: "Click action",
+      groups: [
+        {
+          uid: makeUid("action_group"),
+          displayName: "Action",
+          slices: [
+            dropdown("action", "mode", "Mode", this.txt(obj, "action", "mode", "none"), [
+              { value: "none", displayName: "None" },
+              { value: "url", displayName: "Open URL" }
+              // You can add more later (drillthrough/navigate/bookmark) if you back them with logic.
+            ]),
+            textInput("action", "url", "URL", this.txt(obj, "action", "url", ""), "https://…"),
+          ],
+        },
+      ],
+    });
+
+    return { cards };
+  }
+
+  private place(el: HTMLElement, p: string) {
+    el.classList.remove("center", "right");
+    switch ((p || "left").toLowerCase()) {
+      case "left":
+        el.style.gridRow = "2";
+        el.style.gridColumn = "1";
+        break;
+      case "right":
+        el.style.gridRow = "2";
+        el.style.gridColumn = "3";
+        el.classList.add("right");
+        break;
+      case "top":
+      case "above":
+        el.style.gridRow = "1";
+        el.style.gridColumn = "2";
+        el.classList.add("center");
+        break;
+      case "bottom":
+      case "below":
+        el.style.gridRow = "3";
+        el.style.gridColumn = "2";
+        el.classList.add("center");
+        break;
+      default:
+        el.style.gridRow = "2";
+        el.style.gridColumn = "1";
+    }
+  }
+
+  private format(v: any, opt: {
+    useModel: boolean; customFmt: string; decimals: number; thousands: boolean;
+    usePercent: boolean; prefix: string; suffix: string; modelFmt?: string
+  }): string {
+    if (v == null || v === "") return "";
+    const n = typeof v === "number" ? v : Number(v);
+
+    let model = opt.useModel && opt.modelFmt ? String(opt.modelFmt) : "";
+    let usePct = opt.usePercent;
+    let decimals = opt.decimals;
+    let useThousands = opt.thousands;
+
+    if (model) {
+      if (model.indexOf("%") >= 0) usePct = true;
+      const m = model.match(/0\.0+/);
+      if (m) decimals = Math.max(decimals, m[0].length - 2);
+      if (model.indexOf(",") >= 0) useThousands = true;
+    }
+
+    let valueToFormat = n;
+    let suffix = opt.suffix || "";
+    if (usePct) {
+      valueToFormat = n * 100;
+      if (!suffix) suffix = "%";
+    }
+
+    if (isFinite(valueToFormat)) {
+      const str = useThousands
+        ? valueToFormat.toLocaleString(undefined, {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+          })
+        : valueToFormat.toFixed(decimals);
+      return (opt.prefix || "") + str + (suffix || "");
+    }
+    return String(v);
+  }
+
+  private pickRuleColor(mode: string, cond: any, cols: any): string {
+    if (!mode || mode === "none") return cols.defaultCol;
+
+    if (mode === "hex") {
+      const s = String(cond || "").trim();
+      if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(s)) return s;
+      return cols.defaultCol;
+    }
+
+    if (mode === "text") {
+      const k = String(cond || "").toLowerCase();
+      if (["good", "ok", "green", "pass", "true"].includes(k)) return cols.good;
+      if (["warn", "warning", "yellow", "amber"].includes(k)) return cols.warn;
+      if (["bad", "red", "fail", "false"].includes(k)) return cols.bad;
+      return cols.defaultCol;
+    }
+
+    if (mode === "numeric") {
+      const n = Number(cond);
+      if (!isNaN(n)) {
+        if (n > 0) return cols.pos;
+        if (n === 0) return cols.zero;
+        return cols.neg;
+      }
+      return cols.defaultCol;
+    }
+
+    return cols.defaultCol;
+  }
+
+  private rgba(hex: string, alpha: number): string {
+    try {
+      const h = hex.replace("#", "");
+      let r: number, g: number, b: number;
+      if (h.length === 3) {
+        r = parseInt(h[0] + h[0], 16);
+        g = parseInt(h[1] + h[1], 16);
+        b = parseInt(h[2] + h[2], 16);
+      } else {
+        r = parseInt(h.slice(0, 2), 16);
+        g = parseInt(h.slice(2, 4), 16);
+        b = parseInt(h.slice(4, 6), 16);
+      }
+      return `rgba(${r},${g},${b},${Math.max(0, Math.min(1, alpha))})`;
+    } catch {
+      return hex;
+    }
+  }
+
+  private ensureSvg(input: string): SVGSVGElement | null {
+    try {
+      const trimmed = input.trim();
+      if (trimmed.startsWith("data:image/svg+xml")) {
+        const comma = trimmed.indexOf(",");
+        const svgText = decodeURIComponent(trimmed.slice(comma + 1));
+        return this.ensureSvg(svgText);
+      }
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(trimmed, "image/svg+xml");
+      const svg = doc.documentElement as unknown as SVGSVGElement;
+      if (svg && svg.tagName.toLowerCase() === "svg") return svg;
+    } catch {}
+    return null;
+  }
+
+  private onClick() {
+    if (this._actionMode === "drillthrough") {
+      try {
+        const rect = this.container.getBoundingClientRect();
+        this.selectionManager.showContextMenu(
+          {},
+          { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+        );
+      } catch {}
+      return;
+    }
+
+    if (this._actionMode === "url" || this._actionMode === "navigate" || this._actionMode === "bookmark") {
+      const url = this._actionUrl?.trim();
+      if (!url) return;
+      try {
+        const anyHost = this.host as any;
+        if (anyHost && typeof anyHost.launchUrl === "function") anyHost.launchUrl(url);
+        else window.open(url, "_blank");
+      } catch {}
+    }
+  }
+}
