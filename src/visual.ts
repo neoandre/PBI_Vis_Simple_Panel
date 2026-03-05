@@ -97,6 +97,9 @@ export class Visual implements IVisual {
     const iconPlacement = this.txt(objects, "icon", "placement", "left");
     const builtIn = (this.txt(objects, "icon", "builtIn", "status-circles") || "status-circles").toLowerCase();
 
+    const valWeight = this.txt(objects, 'valueText', 'fontWeight', 'normal');
+    this.valueEl.style.fontWeight = valWeight;
+
     // Data roles → first row
     let value: any = "";
     let condition: any = undefined;
