@@ -61,9 +61,9 @@
               { "value": "Consolas", "displayName": "Consolas" },
               { "value": "Verdana, Geneva, sans-serif", "displayName": "Verdana" },
               { "value": "Tahoma, Geneva, sans-serif", "displayName": "Tahoma" },
-              { "value": "'Trebuchet MS', Arial, sans-serif", "displayName": "Trebuchet MS" },
-              { "value": "Georgia, 'Times New Roman', serif", "displayName": "Georgia" },
-              { "value": "'Times New Roman', Times, serif", "displayName": "Times New Roman" },
+              { "value": "Trebuchet MS", "displayName": "Trebuchet MS" },
+              { "value": "Georgia", "displayName": "Georgia" },
+              { "value": "Times New Roman", "displayName": "Times New Roman" },
               { "value": "Roboto, Arial, sans-serif", "displayName": "Roboto" },
               { "value": "Inter, Arial, sans-serif", "displayName": "Inter" }
             ]
@@ -156,9 +156,9 @@
               { "value": "Consolas", "displayName": "Consolas" },
               { "value": "Verdana, Geneva, sans-serif", "displayName": "Verdana" },
               { "value": "Tahoma, Geneva, sans-serif", "displayName": "Tahoma" },
-              { "value": "'Trebuchet MS', Arial, sans-serif", "displayName": "Trebuchet MS" },
-              { "value": "Georgia, 'Times New Roman', serif", "displayName": "Georgia" },
-              { "value": "'Times New Roman', Times, serif", "displayName": "Times New Roman" },
+              { "value": "Trebuchet MS", "displayName": "Trebuchet MS" },
+              { "value": "Georgia", "displayName": "Georgia" },
+              { "value": "Times New Roman", "displayName": "Times New Roman" },
               { "value": "Roboto, Arial, sans-serif", "displayName": "Roboto" },
               { "value": "Inter, Arial, sans-serif", "displayName": "Inter" }
             ]
