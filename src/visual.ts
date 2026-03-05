@@ -6,7 +6,7 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import DataView = powerbi.DataView;
 import DataViewTable = powerbi.DataViewTable;
 import DataViewMetadataColumn = powerbi.DataViewMetadataColumn;
-import { valueFormatter } from "powerbi-visuals-utils-formattingutils/lib/valueFormatter";
+import { valueFormatter } from "powerbi-visuals-utils-formattingutils";
 
 export class Visual implements IVisual {
   private host?: powerbi.extensibility.IVisualHost;
@@ -141,10 +141,8 @@ export class Visual implements IVisual {
     this.iconEl.innerHTML = '';
     let svgToRender: string | undefined = iconSvg;
     if ((!svgToRender || !svgToRender.trim()) && builtIn === 'status-circles') {
-      // Build a colored circle based on rulesColor
       const fill = rulesColor || '#28FF18';
-      svgToRender = `<svg xmlns="http://www.w3.org/2000/svg" width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24">`+
-                    `<circle cx="12" cy="12" r="10" fill="${fill}"/></svg>`;
+      svgToRender = `<svg xmlns="http://www.w3.org/2000/svg" width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${fill}"/></svg>`;
     }
     if (svgToRender && svgToRender.trim().length > 0) {
       const svg = this.ensureSvg(svgToRender);
@@ -165,8 +163,12 @@ export class Visual implements IVisual {
   private _actionMode: string = 'none';
   private _actionUrl: string = '';
   private onClick() {
-    if (this._actionMode === 'url' && this._actionUrl && this.host && this.host.launchUrl) {
-      try { this.host.launchUrl(this._actionUrl); } catch {}
+    if (this._actionMode === 'url' && this._actionUrl) {
+      try {
+        const anyHost = this.host as any;
+        if (anyHost && typeof anyHost.launchUrl === 'function') anyHost.launchUrl(this._actionUrl);
+        else window.open(this._actionUrl, '_blank');
+      } catch {}
     }
   }
 
@@ -191,27 +193,14 @@ export class Visual implements IVisual {
     let suffix = opt.suffix || '';
     if (opt.usePercent) { valueToFormat = n * 100; suffix = suffix || '%'; }
 
-    // 1) Model format (if enabled and available)
     if (opt.useModel && opt.modelFmt) {
-      try {
-        const vf = valueFormatter.create({ format: opt.modelFmt, cultureSelector: culture });
-        return (opt.prefix||'') + vf.format(valueToFormat) + (suffix||'');
-      } catch {}
+      try { const vf = valueFormatter.create({ format: opt.modelFmt, cultureSelector: culture }); return (opt.prefix||'') + vf.format(valueToFormat) + (suffix||''); } catch {}
     }
-
-    // 2) Custom format string
     if (!opt.useModel && opt.customFmt) {
-      try {
-        const vf = valueFormatter.create({ format: opt.customFmt, cultureSelector: culture });
-        return (opt.prefix||'') + vf.format(valueToFormat) + (suffix||'');
-      } catch {}
+      try { const vf = valueFormatter.create({ format: opt.customFmt, cultureSelector: culture }); return (opt.prefix||'') + vf.format(valueToFormat) + (suffix||''); } catch {}
     }
-
-    // 3) Decimals + thousands
     if (isFinite(valueToFormat)) {
-      const str = opt.thousands
-        ? valueToFormat.toLocaleString(undefined, { minimumFractionDigits: opt.decimals, maximumFractionDigits: opt.decimals })
-        : valueToFormat.toFixed(opt.decimals);
+      const str = opt.thousands ? valueToFormat.toLocaleString(undefined, { minimumFractionDigits: opt.decimals, maximumFractionDigits: opt.decimals }) : valueToFormat.toFixed(opt.decimals);
       return (opt.prefix||'') + str + (suffix||'');
     }
     return String(v);
@@ -251,19 +240,19 @@ export class Visual implements IVisual {
       const svg = doc.documentElement as unknown as SVGSVGElement;
       if (svg && svg.tagName.toLowerCase() === 'svg') return svg;
     } catch {}
-    return null;
+     return null;
   }
 
   private rgba(hex: string, alpha: number): string {
     try {
       const h = hex.replace('#','');
       let r:number,g:number,b:number;
-      if (h.length===3){ r=parseInt(h[0]+h[0],16); g=parseInt(h[1]+h[1],16); b=parseInt(h[2]+h[2],16);} 
-      else { r=parseInt(h.slice(0,2),16); g=parseInt(h.slice(2,4),16); b=parseInt(h.slice(4,6),16);} 
+      if (h.length===3){ r=parseInt(h[0]+h[0],16); g=parseInt(h[1]+h[1],16); b=parseInt(h[2]+h[2],16);} else { r=parseInt(h.slice(0,2),16); g=parseInt(h.slice(2,4),16); b=parseInt(h.slice(4,6),16);} 
       return `rgba(${r},${g},${b},${Math.max(0,Math.min(1,alpha)).toFixed(3)})`;
     } catch { return hex; }
   }
 
+  // Object readers
   private num(objects: powerbi.DataViewObjects, obj: string, prop: string, def: number): number {
     try { const v = (objects as any)[obj]?.[prop]; const n = typeof v==='number'? v: Number(v); return isFinite(n)? n: def; } catch { return def; }
   }
@@ -272,5 +261,8 @@ export class Visual implements IVisual {
   }
   private col(objects: powerbi.DataViewObjects, obj: string, prop: string, def: string): string {
     try { const c: any = (objects as any)[obj]?.[prop]; if (typeof c==='string') return c; if (c?.solid?.color) return String(c.solid.color); return def; } catch { return def; }
+  }
+  private bool(objects: powerbi.DataViewObjects, obj: string, prop: string, def: boolean): boolean {
+    try { const v: any = (objects as any)[obj]?.[prop]; if (typeof v === 'boolean') return v; if (v==='true') return true; if (v==='false') return false; return def; } catch { return def; }
   }
 }
