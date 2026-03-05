@@ -212,8 +212,30 @@ export class Visual implements IVisual {
     cards.push({
       uid: makeUid('valueText_card'), displayName: 'Measure value',
       groups: [{ uid: makeUid('valueText_group'), displayName: 'Text',
-        slices: [
-          textInput('valueText','fontFamily','Font family', this.txt(obj,'valueText','fontFamily','Segoe UI, Arial'), 'Enter font family…'),
+        slices: [        
+          dropdown('valueText','fontFamily','Font family',
+            this.txt(obj,'valueText','fontFamily','Segoe UI, Arial'),
+            [
+              { value: 'Segoe UI',                       displayName: 'Segoe UI' },
+              { value: 'Arial, Helvetica, sans-serif',   displayName: 'Arial' },
+              { value: 'Segoe UI',                       displayName: 'Segoe UI' },
+              { value: 'Sergoe (Bold)',                  displayName: 'Segoe (Bold)' },
+              { value: 'Segoe UI Semibold',              displayName: 'Segoe UI Semibold' },
+              { value: 'Segoe UI Light',                 displayName: 'Segoe UI Light' },
+              { value: 'DIN',                            displayName: 'DIN' },
+              { value: 'DIN Light',                      displayName: 'DIN Light' },
+              { value: 'Arial',                          displayName: 'Arial' },
+              { value: 'Arial Black',                    displayName: 'Arial Black' },
+              { value: 'Calibri',                        displayName: 'Calibri' },
+              { value: 'Consolas',                       displayName: 'Consolas' },
+              { value: 'Verdana, Geneva, sans-serif',    displayName: 'Verdana' },
+              { value: 'Tahoma, Geneva, sans-serif',     displayName: 'Tahoma' },
+              { value: 'Trebuchet MS',                   displayName: 'Trebuchet MS' },
+              { value: 'Georgia',                        displayName: 'Georgia' },
+              { value: 'Times New Roman',                displayName: 'Times New Roman' },
+              { value: 'Roboto, Arial, sans-serif',      displayName: 'Roboto' },
+              { value: 'Inter, Arial, sans-serif',       displayName: 'Inter' }
+            ]),
           numUpDown('valueText','fontSize','Font size', this.num(obj,'valueText','fontSize',28)),
           colorPicker('valueText','color','Color', this.col(obj,'valueText','color','#0F172A'))
         ]
@@ -224,7 +246,29 @@ export class Visual implements IVisual {
     cards.push({ uid: makeUid('nameText_card'), displayName:'Measure name',
       groups: [{ uid: makeUid('nameText_group'), displayName:'Text',
         slices: [
-          textInput('nameText','fontFamily','Font family', this.txt(obj,'nameText','fontFamily','Segoe UI, Arial'), 'Enter font family…'),
+          dropdown('valueText','fontFamily','Font family',
+            this.txt(obj,'valueText','fontFamily','Segoe UI, Arial'),
+            [
+              { value: 'Segoe UI',                       displayName: 'Segoe UI' },
+              { value: 'Arial, Helvetica, sans-serif',   displayName: 'Arial' },
+              { value: 'Segoe UI',                       displayName: 'Segoe UI' },
+              { value: 'Sergoe (Bold)',                  displayName: 'Segoe (Bold)' },
+              { value: 'Segoe UI Semibold',              displayName: 'Segoe UI Semibold' },
+              { value: 'Segoe UI Light',                 displayName: 'Segoe UI Light' },
+              { value: 'DIN',                            displayName: 'DIN' },
+              { value: 'DIN Light',                      displayName: 'DIN Light' },
+              { value: 'Arial',                          displayName: 'Arial' },
+              { value: 'Arial Black',                    displayName: 'Arial Black' },
+              { value: 'Calibri',                        displayName: 'Calibri' },
+              { value: 'Consolas',                       displayName: 'Consolas' },
+              { value: 'Verdana, Geneva, sans-serif',    displayName: 'Verdana' },
+              { value: 'Tahoma, Geneva, sans-serif',     displayName: 'Tahoma' },
+              { value: 'Trebuchet MS',                   displayName: 'Trebuchet MS' },
+              { value: 'Georgia',                        displayName: 'Georgia' },
+              { value: 'Times New Roman',                displayName: 'Times New Roman' },
+              { value: 'Roboto, Arial, sans-serif',      displayName: 'Roboto' },
+              { value: 'Inter, Arial, sans-serif',       displayName: 'Inter' }
+            ]),
           numUpDown('nameText','fontSize','Font size', this.num(obj,'nameText','fontSize',12)),
           colorPicker('nameText','color','Color', this.col(obj,'nameText','color','#6B7280')),
           dropdown('nameText','placement','Placement', this.txt(obj,'nameText','placement','top'), [
@@ -433,7 +477,14 @@ export class Visual implements IVisual {
     } catch {}
      return null;
   }
-
+  
+  private selectionManager: powerbi.extensibility.ISelectionManager;
+  
+  constructor(options?: VisualConstructorOptions) {
+    // ...
+    this.selectionManager = options?.host.createSelectionManager();
+  }
+  
   // Object readers
   private num(objects: powerbi.DataViewObjects, obj: string, prop: string, def: number): number {
     try { const v = (objects as any)[obj]?.[prop]; const n = typeof v==='number'? v: Number(v); return isFinite(n)? n: def; } catch { return def; }
@@ -452,12 +503,24 @@ export class Visual implements IVisual {
   private _actionMode: string = 'none';
   private _actionUrl: string = '';
   private onClick() {
-    if (this._actionMode === 'url' && this._actionUrl) {
+    if (this._actionMode === 'drillthrough') {
+      // Show context menu in the center of the visual – host renders Drillthrough if applicable
+      try {
+        const rect = this.container.getBoundingClientRect();
+        this.selectionManager.showContextMenu({}, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+      } catch {}
+      return;
+    }
+  
+    if (this._actionMode === 'url' || this._actionMode === 'navigate' || this._actionMode === 'bookmark') {
+      const url = this._actionUrl?.trim();
+      if (!url) return;
       try {
         const anyHost = this.host as any;
-        if (anyHost && typeof anyHost.launchUrl === 'function') anyHost.launchUrl(this._actionUrl);
-        else window.open(this._actionUrl, '_blank');
+        if (anyHost && typeof anyHost.launchUrl === 'function') anyHost.launchUrl(url);
+        else window.open(url, '_blank');
       } catch {}
+      return;
     }
-  }
 }
+
