@@ -13,6 +13,7 @@ export class Visual implements IVisual {
   private nameEl: HTMLDivElement;
   private valueEl: HTMLDivElement;
   private iconEl: HTMLDivElement;
+  private lastObjects: powerbi.DataViewObjects | undefined;
 
   constructor(options?: VisualConstructorOptions) {
     this.host = options?.host;
@@ -34,19 +35,19 @@ export class Visual implements IVisual {
     this.iconEl.className = 'icon';
     this.container.appendChild(this.iconEl);
 
-    // Click action handler
     this.container.onclick = () => this.onClick();
   }
 
   public update(options: VisualUpdateOptions): void {
     const dv: DataView | undefined = options.dataViews && options.dataViews[0];
+    this.lastObjects = (dv && dv.metadata && dv.metadata.objects) || ({} as powerbi.DataViewObjects);
     const table: DataViewTable | undefined = dv && dv.table;
 
     const width = Math.max(24, options.viewport.width);
     const height = Math.max(24, options.viewport.height);
     this.container.style.width = `${width}px`; this.container.style.height = `${height}px`;
 
-    const objects = (dv && dv.metadata && dv.metadata.objects) || ({} as powerbi.DataViewObjects);
+    const objects = this.lastObjects;
 
     // Layout, background, border
     const gap = this.num(objects, 'layout', 'gap', 6);
@@ -55,7 +56,7 @@ export class Visual implements IVisual {
     this.container.style.padding = `${padding}px`;
 
     const bgColor = this.col(objects, 'background', 'color', '#FFFFFF');
-    const bgAlpha = this.num(objects, 'background', 'transparency', 0); // 0..100 transparency
+    const bgAlpha = this.num(objects, 'background', 'transparency', 0);
     this.container.style.backgroundColor = this.rgba(bgColor, 1 - Math.max(0, Math.min(100, bgAlpha)) / 100);
 
     const borderColor = this.col(objects, 'card', 'borderColor', '#E5E7EB');
@@ -85,9 +86,10 @@ export class Visual implements IVisual {
     let measureName = 'Measure';
     let measureFormat: string | undefined = undefined;
 
-    if (table && table.rows && table.rows.length > 0) {
-      const row = table.rows[0];
-      const cols = (table.columns || []) as DataViewMetadataColumn[];
+    const tableDv = table;
+    if (tableDv && tableDv.rows && tableDv.rows.length > 0) {
+      const row = tableDv.rows[0];
+      const cols = (tableDv.columns || []) as DataViewMetadataColumn[];
       const idxMeasure = cols.findIndex(c => c.roles && (c.roles as any)['measure']);
       const idxCond = cols.findIndex(c => c.roles && (c.roles as any)['condition']);
       const idxIcon = cols.findIndex(c => c.roles && (c.roles as any)['iconSvg']);
@@ -158,6 +160,174 @@ export class Visual implements IVisual {
     this._actionUrl = this.txt(objects,'action','url','');
   }
 
+  // ==== FormattingModel API (Modern Format Pane) ====
+  public getFormattingModel(): powerbi.visuals.FormattingModel {
+    const cards: powerbi.visuals.FormattingCard[] = [];
+    const makeUid = (s: string) => `${s}_uid`;
+
+    // Helper creators for common controls
+    const textInput = (objectName:string, propertyName:string, displayName:string, value:string): powerbi.visuals.FormattingSlice => ({
+      uid: makeUid(`${objectName}_${propertyName}`),
+      displayName,
+      control: {
+        type: powerbi.visuals.FormattingComponent.TextInput,
+        properties: { descriptor: { objectName, propertyName }, value }
+      }
+    });
+    const numUpDown = (objectName:string, propertyName:string, displayName:string, value:number, min?:number, max?:number): powerbi.visuals.FormattingSlice => ({
+      uid: makeUid(`${objectName}_${propertyName}`),
+      displayName,
+      control: {
+        type: powerbi.visuals.FormattingComponent.NumUpDown,
+        properties: { descriptor: { objectName, propertyName }, value, options: { min, max } }
+      }
+    });
+    const colorPicker = (objectName:string, propertyName:string, displayName:string, value:string): powerbi.visuals.FormattingSlice => ({
+      uid: makeUid(`${objectName}_${propertyName}`),
+      displayName,
+      control: {
+        type: powerbi.visuals.FormattingComponent.ColorPicker,
+        properties: { descriptor: { objectName, propertyName }, value: { value } }
+      }
+    });
+    const toggle = (objectName:string, propertyName:string, displayName:string, value:boolean): powerbi.visuals.FormattingSlice => ({
+      uid: makeUid(`${objectName}_${propertyName}`),
+      displayName,
+      control: {
+        type: powerbi.visuals.FormattingComponent.ToggleSwitch,
+        properties: { descriptor: { objectName, propertyName }, value }
+      }
+    });
+    const dropdown = (objectName:string, propertyName:string, displayName:string, value:string, items: {value:string, displayName:string}[]): powerbi.visuals.FormattingSlice => ({
+      uid: makeUid(`${objectName}_${propertyName}`),
+      displayName,
+      control: {
+        type: powerbi.visuals.FormattingComponent.Dropdown,
+        properties: { descriptor: { objectName, propertyName }, value, items }
+      }
+    });
+
+    const obj = this.lastObjects || ({} as powerbi.DataViewObjects);
+
+    // Value card
+    cards.push({
+      uid: makeUid('valueText_card'),
+      displayName: 'Measure value',
+      groups: [{
+        uid: makeUid('valueText_group'), displayName: 'Text',
+        slices: [
+          textInput('valueText','fontFamily','Font family', this.txt(obj,'valueText','fontFamily','Segoe UI, Arial')),
+          numUpDown('valueText','fontSize','Font size', this.num(obj,'valueText','fontSize',28), 8, 120),
+          colorPicker('valueText','color','Color', this.col(obj,'valueText','color','#0F172A'))
+        ]
+      }]
+    });
+
+    // Name card
+    cards.push({
+      uid: makeUid('nameText_card'), displayName:'Measure name',
+      groups: [{ uid: makeUid('nameText_group'), displayName:'Text',
+        slices: [
+          textInput('nameText','fontFamily','Font family', this.txt(obj,'nameText','fontFamily','Segoe UI, Arial')),
+          numUpDown('nameText','fontSize','Font size', this.num(obj,'nameText','fontSize',12), 6, 80),
+          colorPicker('nameText','color','Color', this.col(obj,'nameText','color','#6B7280')),
+          dropdown('nameText','placement','Placement', this.txt(obj,'nameText','placement','top'), [
+            { value:'left', displayName:'Left' },{ value:'right', displayName:'Right' },{ value:'top', displayName:'Above' },{ value:'bottom', displayName:'Below' }
+          ])
+        ]
+      }]
+    });
+
+    // Icon card
+    cards.push({
+      uid: makeUid('icon_card'), displayName:'Icon',
+      groups: [{ uid: makeUid('icon_group'), displayName:'Appearance',
+        slices: [
+          numUpDown('icon','size','Size (px)', this.num(obj,'icon','size',18), 8, 128),
+          dropdown('icon','placement','Placement', this.txt(obj,'icon','placement','left'), [
+            { value:'left', displayName:'Left' },{ value:'right', displayName:'Right' },{ value:'top', displayName:'Above' },{ value:'bottom', displayName:'Below' }
+          ]),
+          dropdown('icon','builtIn','Built-in icons', this.txt(obj,'icon','builtIn','status-circles'), [
+            { value:'none', displayName:'None' },{ value:'status-circles', displayName:'Status circles' }
+          ])
+        ]
+      }]
+    });
+
+    // Value format card
+    cards.push({ uid: makeUid('valueFormat_card'), displayName:'Value format',
+      groups: [{ uid: makeUid('valueFormat_group'), displayName:'Format',
+        slices: [
+          toggle('valueFormat','useModelFormat','Use data model format', this.bool(obj,'valueFormat','useModelFormat', true)),
+          toggle('valueFormat','usePercent','Percent (×100 + %)', this.bool(obj,'valueFormat','usePercent', false)),
+          numUpDown('valueFormat','decimals','Decimals', this.num(obj,'valueFormat','decimals', 2), 0, 6),
+          toggle('valueFormat','thousands','Thousands separator', this.bool(obj,'valueFormat','thousands', true)),
+          textInput('valueFormat','prefix','Prefix', this.txt(obj,'valueFormat','prefix','')),
+          textInput('valueFormat','suffix','Suffix', this.txt(obj,'valueFormat','suffix','')),
+          textInput('valueFormat','customFormat','Custom format', this.txt(obj,'valueFormat','customFormat',''))
+        ]
+      }]
+    });
+
+    // Rules
+    cards.push({ uid: makeUid('rules_card'), displayName:'Coloring rules',
+      groups: [{ uid: makeUid('rules_group'), displayName:'Rules',
+        slices: [
+          dropdown('rules','mode','Mode', this.txt(obj,'rules','mode','none'), [
+            { value:'none', displayName:'None' },{ value:'numeric', displayName:'Numeric' },{ value:'text', displayName:'Text' },{ value:'hex', displayName:'Hex' }
+          ]),
+          colorPicker('rules','posColor','Positive color', this.col(obj,'rules','posColor','#28FF18')),
+          colorPicker('rules','zeroColor','Zero color', this.col(obj,'rules','zeroColor','#FFEA04')),
+          colorPicker('rules','negColor','Negative color', this.col(obj,'rules','negColor','#FF2C2C')),
+          colorPicker('rules','goodColor','Good color', this.col(obj,'rules','goodColor','#28FF18')),
+          colorPicker('rules','warnColor','Warn color', this.col(obj,'rules','warnColor','#FFEA04')),
+          colorPicker('rules','badColor','Bad color', this.col(obj,'rules','badColor','#FF2C2C')),
+          colorPicker('rules','defaultColor','Default color', this.col(obj,'rules','defaultColor','#0F172A'))
+        ]
+      }]
+    });
+
+    // Background
+    cards.push({ uid: makeUid('background_card'), displayName:'Background',
+      groups: [{ uid: makeUid('background_group'), displayName:'Background',
+        slices: [
+          colorPicker('background','color','Background color', this.col(obj,'background','color','#FFFFFF')),
+          numUpDown('background','transparency','Transparency (0-100)', this.num(obj,'background','transparency', 0), 0, 100)
+        ]
+      }]
+    });
+
+    // Card border
+    cards.push({ uid: makeUid('card_card'), displayName:'Card border',
+      groups: [{ uid: makeUid('card_group'), displayName:'Border',
+        slices: [
+          colorPicker('card','borderColor','Border color', this.col(obj,'card','borderColor','#E5E7EB')),
+          numUpDown('card','borderWidth','Border width (px)', this.num(obj,'card','borderWidth', 0), 0, 20),
+          numUpDown('card','cornerRadius','Corner radius (px)', this.num(obj,'card','cornerRadius', 6), 0, 50)
+        ]
+      }]
+    });
+
+    // Layout
+    cards.push({ uid: makeUid('layout_card'), displayName:'Layout',
+      groups: [{ uid: makeUid('layout_group'), displayName:'Layout',
+        slices: [ numUpDown('layout','gap','Gap (px)', this.num(obj,'layout','gap', 6), 0, 50), numUpDown('layout','padding','Padding (px)', this.num(obj,'layout','padding', 8), 0, 50) ]
+      }]
+    });
+
+    // Action
+    cards.push({ uid: makeUid('action_card'), displayName:'Click action',
+      groups: [{ uid: makeUid('action_group'), displayName:'Action',
+        slices: [
+          dropdown('action','mode','Mode', this.txt(obj,'action','mode','none'), [ { value:'none', displayName:'None' }, { value:'url', displayName:'Open URL' } ]),
+          textInput('action','url','URL', this.txt(obj,'action','url',''))
+        ]
+      }]
+    });
+
+    return { cards };
+  }
+
   // Click action
   private _actionMode: string = 'none';
   private _actionUrl: string = '';
@@ -171,7 +341,6 @@ export class Visual implements IVisual {
     }
   }
 
-  // Helpers
   private place(el: HTMLElement, p: string) {
     el.classList.remove('center','right');
     switch ((p || 'left').toLowerCase()) {
@@ -186,9 +355,7 @@ export class Visual implements IVisual {
   private format(v: any, opt: { useModel: boolean; customFmt: string; decimals: number; thousands: boolean; usePercent: boolean; prefix: string; suffix: string; modelFmt?: string }): string {
     if (v == null || v === '') return '';
     const n = (typeof v === 'number') ? v : Number(v);
-    const culture = (this.host as any)?.locale;
 
-    // Basic model-format awareness (subset): detect % and decimals, thousands
     let model = opt.useModel && opt.modelFmt ? String(opt.modelFmt) : '';
     let usePct = opt.usePercent;
     let decimals = opt.decimals;

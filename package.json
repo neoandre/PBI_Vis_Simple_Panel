@@ -1,6 +1,6 @@
 {
   "name": "simple-card-visual",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "private": true,
   "description": "Power BI custom visual: Simple Card",
   "scripts": {
