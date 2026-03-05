@@ -146,7 +146,7 @@ export class Visual implements IVisual {
       svgToRender = `<svg xmlns="http://www.w3.org/2000/svg" width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${fill}"/></svg>`;
     }
     if (svgToRender && svgToRender.trim().length > 0) {
-      const svg = this.Svg(svgToRender);
+      const svg = this.ensureSvg(svgToRender);
       if (svg) { svg.setAttribute('width', String(iconSize)); svg.setAttribute('height', String(iconSize)); this.iconEl.appendChild(svg); }
     }
 
