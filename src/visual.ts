@@ -93,6 +93,7 @@ export class Visual implements IVisual {
     const valSize = this.num(objects, "valueText", "fontSize", 28);
     const valColorDefault = this.col(objects, "valueText", "color", "#0F172A");
     const valWeight = this.txt(objects, 'valueText', 'fontWeight', 'normal');
+    const valAlignment = (this.txt(objects, 'valueText', 'alignment', 'center') || 'center').toLowerCase();
 
     const iconSize = this.num(objects, "icon", "size", 18);
     const iconPlacement = (this.txt(objects, 'icon', 'placement', 'left') || 'left').toLowerCase();
@@ -188,10 +189,10 @@ export class Visual implements IVisual {
       }
     }
 
-    // Placements - IMPROVED LOGIC
+    // Placements - IMPROVED LOGIC with value alignment support
     this.place(this.iconEl, iconPlacement, 'icon', this.hasVisibleName(), this.hasVisibleIcon());
     this.place(this.nameEl, namePlacement, 'name', this.hasVisibleName(), this.hasVisibleIcon());
-    this.place(this.valueEl, 'center', 'value', this.hasVisibleName(), this.hasVisibleIcon());
+    this.place(this.valueEl, valAlignment, 'value', this.hasVisibleName(), this.hasVisibleIcon());
 
     // Store action config
     this._actionMode = (this.txt(objects, "action", "mode", "none") || "none").toLowerCase();
@@ -277,7 +278,7 @@ export class Visual implements IVisual {
       },
     });
 
-    // Value card
+    // Value card - NOW WITH ALIGNMENT OPTION
     cards.push({
       uid: makeUid("valueText_card"),
       displayName: "Measure value",
@@ -326,7 +327,12 @@ export class Visual implements IVisual {
                 { value: "800", displayName: "Extra bold" }
               ]
             ),
-            colorPicker("valueText", "color", "Color", this.col(obj, "valueText", "color", "#0F172A"))
+            colorPicker("valueText", "color", "Color", this.col(obj, "valueText", "color", "#0F172A")),
+            dropdown("valueText", "alignment", "Alignment", this.txt(obj, "valueText", "alignment", "center"), [
+              { value: "left", displayName: "Align left" },
+              { value: "center", displayName: "Align center" },
+              { value: "right", displayName: "Align right" }
+            ])
           ]
         }
       ]
@@ -417,7 +423,7 @@ export class Visual implements IVisual {
       ]
     });
 
-    // Value format
+    // Value format - IMPROVED WITH WORKING CUSTOM FORMAT & MODEL FORMAT DISPLAY
     cards.push({
       uid: makeUid("valueFormat_card"),
       displayName: "Value format",
@@ -432,7 +438,7 @@ export class Visual implements IVisual {
             toggle("valueFormat", "thousands", "Thousands separator", this.bool(obj, "valueFormat", "thousands", true)),
             textInput("valueFormat", "prefix", "Prefix", this.txt(obj, "valueFormat", "prefix", ""), "Enter prefix…"),
             textInput("valueFormat", "suffix", "Suffix", this.txt(obj, "valueFormat", "suffix", ""), "Enter suffix…"),
-            textInput("valueFormat", "customFormat", "Custom format", this.txt(obj, "valueFormat", "customFormat", ""), "e.g.: #,0.0%")
+            textInput("valueFormat", "customFormat", "Custom format", this.txt(obj, "valueFormat", "customFormat", ""), "e.g.: #,0.0K (thousands)")
           ]
         }
       ]
@@ -541,10 +547,25 @@ export class Visual implements IVisual {
     
     const p = (placement || "left").toLowerCase();
     
-    // Value always in center (row 2, col 2)
+    // Value alignment (left, center, right) - UPDATED
     if (elementType === 'value') {
       el.style.gridRow = "2";
       el.style.gridColumn = "2";
+      
+      switch (p) {
+        case "left":
+          el.classList.add("left-align");
+          el.style.justifySelf = "start";
+          break;
+        case "right":
+          el.classList.add("right");
+          el.style.justifySelf = "end";
+          break;
+        case "center":
+        default:
+          el.classList.add("center");
+          el.style.justifySelf = "center";
+      }
       return;
     }
     
@@ -655,6 +676,11 @@ export class Visual implements IVisual {
     if (v == null || v === "") return "";
     const n = typeof v === "number" ? v : Number(v);
 
+    // If custom format is provided and not using model, use it
+    if (opt.customFmt && opt.customFmt.length > 0) {
+      return this.applyCustomFormat(n, opt.customFmt, opt.prefix, opt.suffix);
+    }
+
     let model = opt.useModel && opt.modelFmt ? String(opt.modelFmt) : "";
     let usePct = opt.usePercent;
     let decimals = opt.decimals;
@@ -684,6 +710,52 @@ export class Visual implements IVisual {
       return (opt.prefix || "") + str + (suffix || "");
     }
     return String(v);
+  }
+
+  // NEW METHOD: Apply custom Power BI format strings
+  private applyCustomFormat(value: number, formatStr: string, prefix: string, suffix: string): string {
+    try {
+      let formatted = String(value);
+      let divisor = 1;
+      let suffix_override = suffix || "";
+
+      // Handle percent formats
+      if (formatStr.includes("%")) {
+        value = value * 100;
+        if (!suffix_override) suffix_override = "%";
+      }
+
+      // Parse decimal places from format (e.g., "0.00" = 2 decimals)
+      const decimalMatch = formatStr.match(/0\.0+/);
+      const decimals = decimalMatch ? decimalMatch[0].length - 2 : 0;
+
+      // Check for thousands separator
+      const useThousands = formatStr.includes(",");
+
+      // Handle suffix like K (thousands), M (millions)
+      if (formatStr.includes("K") || formatStr.includes("k")) {
+        divisor = 1000;
+        suffix_override = "K";
+      } else if (formatStr.includes("M") || formatStr.includes("m")) {
+        divisor = 1000000;
+        suffix_override = "M";
+      }
+
+      // Apply divisor if needed
+      const displayValue = value / divisor;
+
+      // Format the number
+      formatted = useThousands
+        ? displayValue.toLocaleString(undefined, {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+          })
+        : displayValue.toFixed(decimals);
+
+      return (prefix || "") + formatted + suffix_override;
+    } catch {
+      return String(value);
+    }
   }
 
   private pickRuleColor(mode: string, cond: any, cols: any): string {
