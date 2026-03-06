@@ -1,8 +1,8 @@
-visual.less
-/* 
+/*
  * PBI Simple Panel Visual Styles
  * 3x3 Grid Layout System
  * Updated: 2026-03-06
+ * Enhancements: Custom format support, value alignment controls
  */
 
 .card-root {
@@ -68,7 +68,20 @@ visual.less
   hyphens: auto;
 }
 
+/* Value alignment classes (for left/center/right alignment) */
+.card-root .value.left-align {
+  text-align: left;
+}
+
+.card-root .value.center {
+  text-align: center;
+}
+
+.card-root .value.right {
+  text-align: right;
+}
+
 /* Optional: Add subtle transitions for smooth layout changes */
 .card-root > div {
-  transition: grid-column 0.2s ease, grid-row 0.2s ease;
+  transition: grid-column 0.2s ease, grid-row 0.2s ease, justify-self 0.2s ease;
 }
