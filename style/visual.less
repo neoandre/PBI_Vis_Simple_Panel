@@ -1,7 +1,7 @@
 /*
  * PBI Simple Panel Visual Styles
  * 3x3 Grid Layout System
- * Updated: 2026-03-06
+ * Updated: 2026-03-09
  * Enhancements: Custom format support, value alignment controls, optional Goal label
  */
 
@@ -40,40 +40,23 @@
   grid-row: 2;
   grid-column: 3;
   justify-self: center;
-  opacity: 0.85; /* subtelnie jaśniejsze niż wartość */
+  opacity: 0.85; /* subtle */
 }
 
-/* Opcjonalne pozycje dla „celu” względem wartości (możesz sterować klasami z TS) */
+/* Optional goal positions relative to value */
 .card-root.goal-above .goal  { grid-row: 1; grid-column: 2; }
 .card-root.goal-below .goal  { grid-row: 3; grid-column: 2; }
 .card-root.goal-left  .goal  { grid-row: 2; grid-column: 1; }
 .card-root.goal-right .goal  { grid-row: 2; grid-column: 3; }
 
 /* Layout classes for dynamic positioning */
-.card-root .left-align {
-  justify-self: start;
-  padding-left: 4px;
-}
-
-.card-root .right {
-  justify-self: end;
-  padding-right: 4px;
-}
-
-.card-root .center {
-  justify-self: center;
-}
-
-.card-root .full-width {
-  justify-self: stretch;
-  text-align: center;
-}
+.card-root .left-align { justify-self: start; padding-left: 4px; }
+.card-root .right      { justify-self: end;   padding-right: 4px; }
+.card-root .center     { justify-self: center; }
+.card-root .full-width { justify-self: stretch; text-align: center; }
 
 /* SVG Icon styling */
-.card-root .icon svg {
-  display: block;
-  margin: 0 auto;
-}
+.card-root .icon svg { display: block; margin: 0 auto; }
 
 /* Responsive text wrapping for centered elements */
 .card-root .name.full-width {
@@ -87,7 +70,7 @@
 .card-root .value.center     { text-align: center; }
 .card-root .value.right      { text-align: right; }
 
-/* Optional: Add subtle transitions for smooth layout changes */
+/* Optional: transitions for smooth layout changes */
 .card-root > div {
   transition: grid-column 0.2s ease, grid-row 0.2s ease, justify-self 0.2s ease;
 }
