@@ -1,0 +1,23 @@
+
+{
+  "name": "pbi-simple-panel-goal-tooltip",
+  "version": "1.0.0",
+  "description": "Simple card/panel visual for Power BI with Goal label and customizable Tooltip",
+  "author": "Your Name",
+  "license": "MIT",
+  "scripts": {
+    "start": "pbiviz start",
+    "package": "pbiviz package"
+  },
+  "dependencies": {
+    "d3-selection": "^3.0.0",
+    "powerbi-visuals-api": "~5.1.0",
+    "powerbi-visuals-utils-formattingmodel": "^6.2.2",
+    "powerbi-visuals-utils-formattingutils": "^5.0.0",
+    "powerbi-visuals-utils-tooltiputils": "^6.0.4"
+  },
+  "devDependencies": {
+    "powerbi-visuals-tools": "^5.1.0",
+    "typescript": "~4.7.4"
+  }
+}
