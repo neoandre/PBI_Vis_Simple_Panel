@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -16,16 +15,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'       # <-- cache npm
+          # cache: 'npm'   # ← USUŃ, brak lockfile
 
       - name: Install dependencies
-        run: |
-          npm install
+        run: npm install
         env:
           CI: true
 
-      # Jeśli pbiviz masz w devDependencies, krok globalny nie jest potrzebny.
-      # Zostawiam npx, które uruchomi lokalną wersję pbiviz z node_modules/.bin
       - name: Package visual
         run: npx pbiviz package --verbose
 
@@ -34,8 +30,7 @@ jobs:
           echo "List dist/"; ls -la dist || true
           test -n "$(find dist -maxdepth 1 -name '*.pbiviz' -print -quit)" || (echo "No .pbiviz found in dist/ after packaging" && exit 2)
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: simple-panel-goal-tooltip
           path: dist/*.pbiviz
