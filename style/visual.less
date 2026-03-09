@@ -2,7 +2,7 @@
  * PBI Simple Panel Visual Styles
  * 3x3 Grid Layout System
  * Updated: 2026-03-06
- * Enhancements: Custom format support, value alignment controls
+ * Enhancements: Custom format support, value alignment controls, optional Goal label
  */
 
 .card-root {
@@ -34,6 +34,20 @@
   grid-column: 1;
   justify-self: center;
 }
+
+/* NEW: Goal label (cel) — domyślnie po prawej od wartości */
+.card-root .goal {
+  grid-row: 2;
+  grid-column: 3;
+  justify-self: center;
+  opacity: 0.85; /* subtelnie jaśniejsze niż wartość */
+}
+
+/* Opcjonalne pozycje dla „celu” względem wartości (możesz sterować klasami z TS) */
+.card-root.goal-above .goal  { grid-row: 1; grid-column: 2; }
+.card-root.goal-below .goal  { grid-row: 3; grid-column: 2; }
+.card-root.goal-left  .goal  { grid-row: 2; grid-column: 1; }
+.card-root.goal-right .goal  { grid-row: 2; grid-column: 3; }
 
 /* Layout classes for dynamic positioning */
 .card-root .left-align {
@@ -69,17 +83,9 @@
 }
 
 /* Value alignment classes (for left/center/right alignment) */
-.card-root .value.left-align {
-  text-align: left;
-}
-
-.card-root .value.center {
-  text-align: center;
-}
-
-.card-root .value.right {
-  text-align: right;
-}
+.card-root .value.left-align { text-align: left; }
+.card-root .value.center     { text-align: center; }
+.card-root .value.right      { text-align: right; }
 
 /* Optional: Add subtle transitions for smooth layout changes */
 .card-root > div {
