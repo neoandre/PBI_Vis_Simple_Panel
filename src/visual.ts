@@ -1,6 +1,8 @@
 // src/visual.ts
-// Logika wizuala: wartość + opcjonalny cel + tooltipy
-// Wymaga: powerbi-visuals-utils-tooltiputils, powerbi-visuals-utils-formattingmodel, powerbi-visuals-utils-formattingutils
+// Uses:
+//  - Formatting Model (API 5.1+) for format pane cards
+//  - Tooltip Service Wrapper for hover tooltips
+//  - 3x3 grid CSS layout with .card-root, preserving existing functionality
 
 import powerbi from "powerbi-visuals-api";
 import { VisualSettings } from "./settings";
@@ -16,31 +18,42 @@ export class Visual implements powerbi.extensibility.visual.IVisual {
   private formattingSettingsService: FormattingSettingsService;
   private settings: VisualSettings;
 
-  private container: HTMLDivElement;
-  private valueEl: HTMLDivElement;
-  private goalEl: HTMLDivElement;
+  private container: HTMLDivElement;  // .card-root
+  private nameEl: HTMLDivElement;     // optional, if you bind name elsewhere
+  private valueEl: HTMLDivElement;    // .value
+  private iconEl: HTMLDivElement;     // .icon (placeholder)
+  private goalEl: HTMLDivElement;     // .goal
 
   constructor(options: powerbi.extensibility.visual.VisualConstructorOptions) {
     this.host = options.host;
     this.element = options.element;
 
     this.formattingSettingsService = new FormattingSettingsService();
+    this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, this.element);
 
-    this.tooltipServiceWrapper = createTooltipServiceWrapper(
-      this.host.tooltipService,
-      this.element
-    );
-
-    // Prosty layout
+    // Root container follows your 3x3 grid layout
     this.container = document.createElement("div");
-    this.container.className = "pbi-panel-container";
+    this.container.className = "card-root";
 
+    // Optional "name" node (kept for compatibility with original CSS)
+    this.nameEl = document.createElement("div");
+    this.nameEl.className = "name full-width";
+
+    // Value node
     this.valueEl = document.createElement("div");
-    this.valueEl.className = "pbi-panel-value";
+    this.valueEl.className = "value center";
 
+    // Icon node (placeholder). In your project you can inject actual SVG/icon here
+    this.iconEl = document.createElement("div");
+    this.iconEl.className = "icon";
+
+    // Goal node
     this.goalEl = document.createElement("div");
-    this.goalEl.className = "pbi-panel-goal";
+    this.goalEl.className = "goal";
 
+    // Assemble DOM
+    this.container.appendChild(this.nameEl);
+    this.container.appendChild(this.iconEl);
     this.container.appendChild(this.valueEl);
     this.container.appendChild(this.goalEl);
     this.element.appendChild(this.container);
@@ -50,10 +63,10 @@ export class Visual implements powerbi.extensibility.visual.IVisual {
     const dataView = options.dataViews && options.dataViews[0];
     if (!dataView) return;
 
-    // 1) Ustawienia z Format Pane (FormattingModel)
+    // 1) Formatting settings
     this.settings = this.formattingSettingsService.populateFormattingSettingsModel(VisualSettings, dataView);
 
-    // 2) Ekstrakcja danych wg ról
+    // 2) Data extraction by roles
     const cat = dataView.categorical;
     const values = cat && cat.values ? cat.values : [];
 
@@ -61,10 +74,10 @@ export class Visual implements powerbi.extensibility.visual.IVisual {
     const goalCol  = values.find(v => v.source.roles && v.source.roles["goal"]);
     const toolCols = values.filter(v => v.source.roles && v.source.roles["tooltips"]);
 
-    const valueRaw = valueCol && valueCol.values ? valueCol.values[0] : undefined;
-    const goalRaw  = goalCol && goalCol.values ? goalCol.values[0]   : undefined;
+    const valueRaw = valueCol?.values?.[0];
+    const goalRaw  = goalCol?.values?.[0];
 
-    // 3) Formatowanie tekstów liczbowych
+    // 3) Format numbers
     const valueTxt = (valueRaw !== undefined && valueRaw !== null)
       ? vf.create({ format: valueCol?.source.format, value: valueRaw as number }).format(valueRaw as number)
       : "";
@@ -73,53 +86,35 @@ export class Visual implements powerbi.extensibility.visual.IVisual {
       ? vf.create({ format: goalCol?.source.format, value: goalRaw as number }).format(goalRaw as number)
       : "";
 
-    // 4) Render wartości
+    // 4) Render nodes (name can be fed from some other source if needed)
+    // If you have a bound field for name/title, set it here; otherwise leave empty
+    this.nameEl.textContent = this.nameEl.textContent || "";
+
     this.valueEl.textContent = valueTxt;
 
-    // 5) Render celu + format i pozycja
     if (goalTxt) {
       this.goalEl.textContent = goalTxt;
       this.goalEl.style.fontFamily = this.settings.goalLabel.fontFamily.value;
       this.goalEl.style.fontWeight = this.settings.goalLabel.bold.value ? "700" : "400";
       this.goalEl.style.fontSize   = `${this.settings.goalLabel.fontSize.value}px`;
 
-      // Pozycjonowanie gridem
-      this.container.style.display = "grid";
+      // Position goal relative to value using container modifier class
       const pos = (this.settings.goalLabel.position.value && (this.settings.goalLabel.position.value as any).value) || "right";
-
+      this.container.classList.remove("goal-above","goal-below","goal-left","goal-right");
       switch (pos) {
-        case "above":
-          this.container.style.gridTemplateRows = "auto auto";
-          this.container.style.gridTemplateColumns = "1fr";
-          (this.goalEl.style as any).gridArea  = "1 / 1 / 2 / 2";
-          (this.valueEl.style as any).gridArea = "2 / 1 / 3 / 2";
-          break;
-        case "below":
-          this.container.style.gridTemplateRows = "auto auto";
-          this.container.style.gridTemplateColumns = "1fr";
-          (this.valueEl.style as any).gridArea = "1 / 1 / 2 / 2";
-          (this.goalEl.style as any).gridArea  = "2 / 1 / 3 / 2";
-          break;
-        case "left":
-          this.container.style.gridTemplateColumns = "auto 1fr";
-          this.container.style.gridTemplateRows = "1fr";
-          (this.goalEl.style as any).gridArea  = "1 / 1 / 2 / 2";
-          (this.valueEl.style as any).gridArea = "1 / 2 / 2 / 3";
-          break;
+        case "above": this.container.classList.add("goal-above"); break;
+        case "below": this.container.classList.add("goal-below"); break;
+        case "left":  this.container.classList.add("goal-left");  break;
         case "right":
-        default:
-          this.container.style.gridTemplateColumns = "1fr auto";
-          this.container.style.gridTemplateRows = "1fr";
-          (this.valueEl.style as any).gridArea = "1 / 1 / 2 / 2";
-          (this.goalEl.style as any).gridArea  = "1 / 2 / 2 / 3";
+        default:       this.container.classList.add("goal-right"); break;
       }
-
       this.goalEl.style.display = "";
     } else {
       this.goalEl.style.display = "none";
+      this.container.classList.remove("goal-above","goal-below","goal-left","goal-right");
     }
 
-    // 6) Tooltip — do całego panelu
+    // 5) Tooltip for entire card
     this.tooltipServiceWrapper.addTooltip(
       d3.select(this.container as unknown as Element),
       (args: TooltipEventArgs<void>) => this.buildTooltipItems(valueTxt, goalTxt, toolCols),
@@ -134,7 +129,6 @@ export class Visual implements powerbi.extensibility.visual.IVisual {
 
     const items: powerbi.extensibility.VisualTooltipDataItem[] = [];
 
-    // Tytuł
     if (t.title.value && t.title.value.trim()) {
       items.push({ displayName: t.title.value, value: "" });
     }
