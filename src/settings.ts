@@ -1,7 +1,6 @@
 // src/settings.ts
-// Ustawienia Format Pane z wykorzystaniem FormattingModel (API 5.1+)
-// Wymaga pakietu: powerbi-visuals-utils-formattingmodel
-// oraz zdefiniowanych obiektów w capabilities.json
+// Formatting Model (API 5.1+) cards for Goal label & Tooltip
+// Requires: powerbi-visuals-utils-formattingmodel
 
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
 
