@@ -8,23 +8,35 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'       # <-- cache npm
+
       - name: Install dependencies
-        run: npm install
-      - name: Install Power BI Visuals Tools (pbiviz)
-        run: npm install -g powerbi-visuals-tools@latest
+        run: |
+          npm ci
+        env:
+          CI: true
+
+      # Jeśli pbiviz masz w devDependencies, krok globalny nie jest potrzebny.
+      # Zostawiam npx, które uruchomi lokalną wersję pbiviz z node_modules/.bin
       - name: Package visual
         run: npx pbiviz package --verbose
+
       - name: Verify package file
         run: |
           echo "List dist/"; ls -la dist || true
           test -n "$(find dist -maxdepth 1 -name '*.pbiviz' -print -quit)" || (echo "No .pbiviz found in dist/ after packaging" && exit 2)
-      - uses: actions/upload-artifact@v4
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: simple-card-visual
+          name: simple-panel-goal-tooltip
           path: dist/*.pbiviz
           if-no-files-found: error
