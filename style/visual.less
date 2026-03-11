@@ -1,76 +1,19 @@
-/*
- * PBI Simple Panel Visual Styles
- * 3x3 Grid Layout System
- * Updated: 2026-03-09
- * Enhancements: Custom format support, value alignment controls, optional Goal label
- */
 
+/* PBI Panel visual styles */
 .card-root {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;     /* 3-column equal width grid */
-  grid-template-rows: auto auto auto;     /* 3-row layout: top | middle | bottom */
+  grid-template-columns: auto 1fr auto; /* icon | text | spare */
+  grid-template-rows: auto auto auto;   /* name | value | spare */
   align-items: center;
-  justify-items: center;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
+  padding: 8px;
+  gap: 6px;
 }
 
-/* Default positioning for elements */
-.card-root .name {
-  grid-row: 1;
-  grid-column: 2;
-  justify-self: center;
-}
+.card-root .name  { grid-row: 1; grid-column: 2; }
+.card-root .value { grid-row: 2; grid-column: 2; }
+.card-root .icon  { grid-row: 2; grid-column: 1; } /* default LEFT of value */
 
-.card-root .value {
-  grid-row: 2;
-  grid-column: 2;
-  justify-self: center;
-}
+.card-root .right  { justify-self: end; }
+.card-root .center { justify-self: center; }
 
-.card-root .icon {
-  grid-row: 2;
-  grid-column: 1;
-  justify-self: center;
-}
-
-/* NEW: Goal label (cel) — domyślnie po prawej od wartości */
-.card-root .goal {
-  grid-row: 2;
-  grid-column: 3;
-  justify-self: center;
-  opacity: 0.85; /* subtle */
-}
-
-/* Optional goal positions relative to value */
-.card-root.goal-above .goal  { grid-row: 1; grid-column: 2; }
-.card-root.goal-below .goal  { grid-row: 3; grid-column: 2; }
-.card-root.goal-left  .goal  { grid-row: 2; grid-column: 1; }
-.card-root.goal-right .goal  { grid-row: 2; grid-column: 3; }
-
-/* Layout classes for dynamic positioning */
-.card-root .left-align { justify-self: start; padding-left: 4px; }
-.card-root .right      { justify-self: end;   padding-right: 4px; }
-.card-root .center     { justify-self: center; }
-.card-root .full-width { justify-self: stretch; text-align: center; }
-
-/* SVG Icon styling */
-.card-root .icon svg { display: block; margin: 0 auto; }
-
-/* Responsive text wrapping for centered elements */
-.card-root .name.full-width {
-  word-break: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-}
-
-/* Value alignment classes (for left/center/right alignment) */
-.card-root .value.left-align { text-align: left; }
-.card-root .value.center     { text-align: center; }
-.card-root .value.right      { text-align: right; }
-
-/* Optional: transitions for smooth layout changes */
-.card-root > div {
-  transition: grid-column 0.2s ease, grid-row 0.2s ease, justify-self 0.2s ease;
-}
+.card-root svg { display: block; }

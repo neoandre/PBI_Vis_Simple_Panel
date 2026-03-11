@@ -1,69 +1,531 @@
 {
-  "privileges": [],
   "dataRoles": [
     {
-      "name": "value",
-      "displayName": "Wartość",
+      "name": "measure",
       "kind": "Measure",
-      "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+      "displayName": "Measure"
     },
     {
-      "name": "goal",
-      "displayName": "Cel",
-      "kind": "Measure",
-      "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+      "name": "condition",
+      "kind": "GroupingOrMeasure",
+      "displayName": "Condition (optional)"
     },
     {
-      "name": "tooltips",
-      "displayName": "Tooltip fields",
-      "kind": "GroupingOrMeasure"
+      "name": "iconSvg",
+      "kind": "GroupingOrMeasure",
+      "displayName": "Icon SVG (optional)"
     }
   ],
   "dataViewMappings": [
     {
-      "conditions": [
-        { "value": { "max": 1 }, "goal": { "max": 1 } }
-      ],
-      "categorical": {
-        "values": {
+      "table": {
+        "rows": {
           "select": [
-            { "bind": { "to": "value" } },
-            { "bind": { "to": "goal" } },
-            { "for":  { "in": "tooltips" } }
+            {
+              "for": {
+                "in": "measure"
+              }
+            },
+            {
+              "for": {
+                "in": "condition"
+              }
+            },
+            {
+              "for": {
+                "in": "iconSvg"
+              }
+            }
           ]
         }
       }
     }
   ],
   "objects": {
-    "goalLabel": {
-      "displayName": "Cel (etykieta)",
+    "valueText": {
+      "displayName": "Measure value",
       "properties": {
-        "fontFamily": { "type": { "formatting": { "fontFamily": true } } },
-        "fontSize":   { "type": { "formatting": { "fontSize": true } } },
-        "bold":       { "type": { "bool": true } },
-        "position": {
-          "displayName": "Pozycja względem wartości",
+        "fontFamily": {
+          "displayName": "Font family",
           "type": {
             "enumeration": [
-              { "displayName": "Nad",     "value": "above" },
-              { "displayName": "Pod",     "value": "below" },
-              { "displayName": "Z lewej", "value": "left"  },
-              { "displayName": "Z prawej","value": "right" }
+              {
+                "value": "Segoe UI",
+                "displayName": "Segoe UI"
+              },
+              {
+                "value": "Segoe UI Semibold",
+                "displayName": "Segoe UI Semibold"
+              },
+              {
+                "value": "Segoe UI Light",
+                "displayName": "Segoe UI Light"
+              },
+              {
+                "value": "DIN",
+                "displayName": "DIN"
+              },
+              {
+                "value": "DIN Light",
+                "displayName": "DIN Light"
+              },
+              {
+                "value": "Arial",
+                "displayName": "Arial"
+              },
+              {
+                "value": "Arial Black",
+                "displayName": "Arial Black"
+              },
+              {
+                "value": "Calibri",
+                "displayName": "Calibri"
+              },
+              {
+                "value": "Consolas",
+                "displayName": "Consolas"
+              },
+              {
+                "value": "Verdana, Geneva, sans-serif",
+                "displayName": "Verdana"
+              },
+              {
+                "value": "Tahoma, Geneva, sans-serif",
+                "displayName": "Tahoma"
+              },
+              {
+                "value": "Trebuchet MS",
+                "displayName": "Trebuchet MS"
+              },
+              {
+                "value": "Georgia",
+                "displayName": "Georgia"
+              },
+              {
+                "value": "Times New Roman",
+                "displayName": "Times New Roman"
+              },
+              {
+                "value": "Roboto, Arial, sans-serif",
+                "displayName": "Roboto"
+              },
+              {
+                "value": "Inter, Arial, sans-serif",
+                "displayName": "Inter"
+              }
+            ]
+          }
+        },
+        "fontSize": {
+          "displayName": "Font size",
+          "type": {
+            "numeric": true
+          }
+        },
+        "color": {
+          "displayName": "Color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "valueFormat": {
+      "displayName": "Value format",
+      "properties": {
+        "useModelFormat": {
+          "displayName": "Use data model format",
+          "type": {
+            "bool": true
+          }
+        },
+        "usePercent": {
+          "displayName": "Percent (\u00d7100 and %)",
+          "type": {
+            "bool": true
+          }
+        },
+        "decimals": {
+          "displayName": "Decimals",
+          "type": {
+            "numeric": true
+          }
+        },
+        "thousands": {
+          "displayName": "Thousands separator",
+          "type": {
+            "bool": true
+          }
+        },
+        "prefix": {
+          "displayName": "Prefix",
+          "type": {
+            "text": true
+          }
+        },
+        "suffix": {
+          "displayName": "Suffix",
+          "type": {
+            "text": true
+          }
+        },
+        "customFormat": {
+          "displayName": "Custom format string",
+          "type": {
+            "text": true
+          }
+        }
+      }
+    },
+    "nameText": {
+      "displayName": "Measure name",
+      "properties": {
+        "fontFamily": {
+          "displayName": "Font family",
+          "type": {
+            "enumeration": [
+              {
+                "value": "Segoe UI",
+                "displayName": "Segoe UI"
+              },
+              {
+                "value": "Segoe UI Semibold",
+                "displayName": "Segoe UI Semibold"
+              },
+              {
+                "value": "Segoe UI Light",
+                "displayName": "Segoe UI Light"
+              },
+              {
+                "value": "DIN",
+                "displayName": "DIN"
+              },
+              {
+                "value": "DIN Light",
+                "displayName": "DIN Light"
+              },
+              {
+                "value": "Arial",
+                "displayName": "Arial"
+              },
+              {
+                "value": "Arial Black",
+                "displayName": "Arial Black"
+              },
+              {
+                "value": "Calibri",
+                "displayName": "Calibri"
+              },
+              {
+                "value": "Consolas",
+                "displayName": "Consolas"
+              },
+              {
+                "value": "Verdana, Geneva, sans-serif",
+                "displayName": "Verdana"
+              },
+              {
+                "value": "Tahoma, Geneva, sans-serif",
+                "displayName": "Tahoma"
+              },
+              {
+                "value": "Trebuchet MS",
+                "displayName": "Trebuchet MS"
+              },
+              {
+                "value": "Georgia",
+                "displayName": "Georgia"
+              },
+              {
+                "value": "Times New Roman",
+                "displayName": "Times New Roman"
+              },
+              {
+                "value": "Roboto, Arial, sans-serif",
+                "displayName": "Roboto"
+              },
+              {
+                "value": "Inter, Arial, sans-serif",
+                "displayName": "Inter"
+              }
+            ]
+          }
+        },
+        "fontSize": {
+          "displayName": "Font size",
+          "type": {
+            "numeric": true
+          }
+        },
+        "color": {
+          "displayName": "Color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "placement": {
+          "displayName": "Placement",
+          "type": {
+            "enumeration": [
+              {
+                "value": "left",
+                "displayName": "Left of value"
+              },
+              {
+                "value": "right",
+                "displayName": "Right of value"
+              },
+              {
+                "value": "top",
+                "displayName": "Above value"
+              },
+              {
+                "value": "bottom",
+                "displayName": "Below value"
+              }
             ]
           }
         }
       }
     },
-    "tooltip": {
-      "displayName": "Tooltip",
+    "icon": {
+      "displayName": "Icon",
       "properties": {
-        "enabled":   { "displayName": "Włącz tooltip", "type": { "bool": true } },
-        "title":     { "displayName": "Tytuł",         "type": { "text": true } },
-        "showValue": { "displayName": "Pokaż wartość", "type": { "bool": true } },
-        "showGoal":  { "displayName": "Pokaż cel",     "type": { "bool": true } },
-        "showFields":{ "displayName": "Pola dodatkowe (z roli Tooltip fields)", "type": { "bool": true } }
+        "size": {
+          "displayName": "Size (px)",
+          "type": {
+            "numeric": true
+          }
+        },
+        "placement": {
+          "displayName": "Placement",
+          "type": {
+            "enumeration": [
+              {
+                "value": "left",
+                "displayName": "Left of value"
+              },
+              {
+                "value": "right",
+                "displayName": "Right of value"
+              },
+              {
+                "value": "top",
+                "displayName": "Above value"
+              },
+              {
+                "value": "bottom",
+                "displayName": "Below value"
+              }
+            ]
+          }
+        },
+        "builtIn": {
+          "displayName": "Built-in icon set",
+          "type": {
+            "enumeration": [
+              {
+                "value": "none",
+                "displayName": "None"
+              },
+              {
+                "value": "status-circles",
+                "displayName": "Status circles"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rules": {
+      "displayName": "Coloring rules",
+      "properties": {
+        "mode": {
+          "displayName": "Mode",
+          "type": {
+            "enumeration": [
+              {
+                "value": "none",
+                "displayName": "None"
+              },
+              {
+                "value": "numeric",
+                "displayName": "Numeric"
+              },
+              {
+                "value": "text",
+                "displayName": "Text"
+              },
+              {
+                "value": "hex",
+                "displayName": "Hex"
+              }
+            ]
+          }
+        },
+        "posColor": {
+          "displayName": "Positive color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "zeroColor": {
+          "displayName": "Zero color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "negColor": {
+          "displayName": "Negative color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "goodColor": {
+          "displayName": "Good color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "warnColor": {
+          "displayName": "Warn color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "badColor": {
+          "displayName": "Bad color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "defaultColor": {
+          "displayName": "Default color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "background": {
+      "displayName": "Background",
+      "properties": {
+        "color": {
+          "displayName": "Background color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "transparency": {
+          "displayName": "Transparency (0-100)",
+          "type": {
+            "numeric": true
+          }
+        }
+      }
+    },
+    "card": {
+      "displayName": "Card border",
+      "properties": {
+        "borderColor": {
+          "displayName": "Border color",
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
+        },
+        "borderWidth": {
+          "displayName": "Border width (px)",
+          "type": {
+            "numeric": true
+          }
+        },
+        "cornerRadius": {
+          "displayName": "Corner radius (px)",
+          "type": {
+            "numeric": true
+          }
+        }
+      }
+    },
+    "layout": {
+      "displayName": "Layout",
+      "properties": {
+        "gap": {
+          "displayName": "Gap (px)",
+          "type": {
+            "numeric": true
+          }
+        },
+        "padding": {
+          "displayName": "Padding (px)",
+          "type": {
+            "numeric": true
+          }
+        }
+      }
+    },
+    "action": {
+      "displayName": "Click action",
+      "properties": {
+        "mode": {
+          "displayName": "Mode",
+          "type": {
+            "text": true
+          }
+        },
+        "url": {
+          "displayName": "URL",
+          "type": {
+            "text": true
+          }
+        }
       }
     }
-  }
+  },
+  "suppressDefaultTitle": true,
+  "privileges": []
 }
