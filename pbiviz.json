@@ -1,0 +1,24 @@
+{
+  "visual": {
+    "name": "PBIPanel",
+    "displayName": "PBI Panel",
+    "guid": "PBIPanel_v512_A01",
+    "visualClassName": "Visual",
+    "version": "5.1.2",
+    "description": "Panel card with value, name, and optional status icon; supports formatting and placements.",
+    "supportUrl": "https://github.com/neoandre/PBI-Panel",
+    "gitHubUrl": "https://github.com/neoandre/PBI-Panel"
+  },
+  "apiVersion": "5.1.0",
+  "author": {
+    "name": "Andrzej Ciupinski",
+    "email": ""
+  },
+  "assets": {
+    "icon": "assets/icon.png"
+  },
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json",
+  "externalJS": [],
+  "stringResources": []
+}
