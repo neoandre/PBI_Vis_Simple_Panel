@@ -1,37 +1,24 @@
-name: Build Power BI Visual (.pbiviz)
 
+name: build
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  build:
+  package:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          # cache: 'npm'   # ← USUŃ, brak lockfile
-
-      - name: Install dependencies
-        run: npm install
-        env:
-          CI: true
-
-      - name: Package visual
-        run: npx pbiviz package --verbose
-
-      - name: Verify package file
-        run: |
-          echo "List dist/"; ls -la dist || true
-          test -n "$(find dist -maxdepth 1 -name '*.pbiviz' -print -quit)" || (echo "No .pbiviz found in dist/ after packaging" && exit 2)
-
+      - run: npm i -g powerbi-visuals-tools@5.6.0
+      - run: npm ci
+      - name: Validate JSON
+        run: node -e "['capabilities.json','pbiviz.json','package.json'].forEach(f=>{JSON.parse(require('fs').readFileSync(f,'utf8')); console.log('OK',f)})"
+      - run: npx pbiviz package --verbose
       - uses: actions/upload-artifact@v4
         with:
-          name: simple-panel-goal-tooltip
+          name: pbiviz
           path: dist/*.pbiviz
-          if-no-files-found: error
