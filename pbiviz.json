@@ -4,7 +4,7 @@
     "displayName": "Simple Card",
     "guid": "simpleCardVisual",
     "visualClassName": "Visual",
-    "version": "1.3.5.0",
+    "version": "1.3.6.0",
     "description": "Simple Card with advanced formatting (FormattingModel API), borders, click action, and built-in icons.",
     "supportUrl": "https://github.com/neoandre/PBI_Vis_Simple_Panel/",
     "gitHubUrl": "https://github.com/neoandre/PBI_Vis_Simple_Panel/"
